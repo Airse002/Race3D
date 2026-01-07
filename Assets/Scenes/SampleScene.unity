@@ -124,6 +124,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ab0c3f49b8759694ba3c2f9c9bf132cd, type: 3}
   m_PrefabInstance: {fileID: 1227695158}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &263026248
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 263026250}
+  - component: {fileID: 263026249}
+  m_Layer: 0
+  m_Name: ScoreManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &263026249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263026248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36963f6f5b8b8b74fa7fbf37f5d37219, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+--- !u!4 &263026250
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263026248}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3.25137, y: 1.4965, z: 4.06914}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,7 +463,7 @@ GameObject:
   - component: {fileID: 657175608}
   - component: {fileID: 657175607}
   m_Layer: 0
-  m_Name: RocketRoot
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -437,7 +481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2905bdcfffc96c448971c5d55d79d42d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RocketAutoFly
-  cruiseSpeed: 25
+  cruiseSpeed: 10
   throttleResponse: 3
   pitchRate: 85
   rollRate: 120
@@ -600,11 +644,64 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab0c3f49b8759694ba3c2f9c9bf132cd, type: 3}
+--- !u!1 &1710708931
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1710708933}
+  - component: {fileID: 1710708932}
+  m_Layer: 0
+  m_Name: LevelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1710708932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710708931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef9a44faec316f744a52d99632b4e601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrackGenerator
+  gatePrefab: {fileID: 1580560300279431017, guid: 96fbe36690cb6ac4d965ca30c8bec175, type: 3}
+  gateCount: 20
+  gateSpacing: 50
+  amplitude: 10
+  frequency: 0.1
+  horizontalOffset: 5
+  verticalOffset: 40
+--- !u!4 &1710708933
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710708931}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.25137, y: 1.4965, z: 4.06914}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 330585546}
   - {fileID: 410087041}
+  - {fileID: 263026250}
   - {fileID: 832575519}
   - {fileID: 657175609}
+  - {fileID: 1710708933}
