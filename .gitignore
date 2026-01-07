@@ -1,0 +1,121 @@
+# =========================
+# Unity generated folders
+# =========================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# If you use Addressables and want to ignore local build cache
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.json*
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.hash*
+
+# =========================
+# Visual Studio / Rider / VSCode
+# =========================
+.vs/
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.unityproj
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Rider / JetBrains
+*.DotSettings.user
+.idea/**
+
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Unity cache / meta backups
+# =========================
+*.tmp
+*.bak
+*.swp
+*.orig
+
+# =========================
+# Crash reports / profiling
+# =========================
+sysinfo.txt
+*.stackdump
+
+# =========================
+# Builds / outputs
+# =========================
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.x86
+*.x86_64
+*.so
+*.dylib
+*.dll
+*.ipa
+*.tpk
+*.keystore
+
+# =========================
+# IL2CPP / Gradle (Android)
+# =========================
+**/Il2CppBuildCache/
+**/Gradle/
+**/.gradle/
+**/gradle-app.setting
+
+# =========================
+# Unity Cloud / Collaborate / Plastic
+# =========================
+.collab/
+plastic.workspace
+plastic.workspace.meta
+
+# =========================
+# Package Manager cache (usually safe to ignore)
+# =========================
+**/[Pp]ackages/com.unity.*/*/Library/
+
+# =========================
+# StreamingAssets exceptions (KEEP your files there)
+# =========================
+# (Nothing ignored here on purpose)
+
+# =========================
+# Uncomment if you DO NOT want to version control auto-generated Lighting data
+# (Recommended to keep lighting settings, but not GI caches)
+# =========================
+# [Aa]ssets/**/[Ll]ightingData.asset
+# [Aa]ssets/**/[Ll]ightingData.asset.meta
+# [Aa]ssets/**/[Ll]ightmap-*.*
+# [Aa]ssets/**/[Ll]ightmap-*.meta
+
+# =========================
+# If you have large generated NavMesh / Terrain caches, ignore them here
+# =========================
+# [Aa]ssets/**/[Nn]av[Mm]esh*.asset
+# [Aa]ssets/**/[Nn]av[Mm]esh*.meta
