@@ -36,7 +36,7 @@ public class TrackGenerator : MonoBehaviour
 
     [Header("Helix/Spring Parameters")]
     public float helixRadius = 10f;
-    public float helixPitch = 5f; // Výška na jeden závit
+    public float helixPitch = 5f;
 
     [Header("Lissajous Parameters")]
     public float lissajousA = 1f;
@@ -52,6 +52,14 @@ public class TrackGenerator : MonoBehaviour
     public OscillationType oscillationType = OscillationType.None;
     public float oscillationAmplitude = 2f;
     public float oscillationSpeed = 1f;
+
+    [Header("Per-Gate Variation")]
+    public bool varyOscillationPhase = true;
+    public float phaseOffsetPerGate = 0.5f;
+    public bool varyOscillationSpeed = false;
+    public float speedVariationAmount = 0.2f;
+
+    [Header("Textures")]
     public Material[] gateTextures;
     public bool randomizeTextures = false;
 
@@ -82,12 +90,16 @@ public class TrackGenerator : MonoBehaviour
         Random
     }
 
+    void Awake()
+    {
+        ClearTrack();
+    }
+
     void Start()
     {
         GenerateTrack();
     }
 
-    // Context menu pro pravé tlačítko v Inspectoru
     [ContextMenu("Generate Track")]
     void ContextGenerateTrack()
     {
@@ -100,13 +112,37 @@ public class TrackGenerator : MonoBehaviour
         ClearTrack();
     }
 
-    // Reset button support
     void Reset()
     {
         ClearTrack();
     }
 
+    // === PUBLIC API ===
+
     public void GenerateTrack()
+    {
+        GenerateTrackWithCurrentSettings();
+    }
+
+    // Plně parametrická verze pomocí TrackConfig struktury
+    public void GenerateTrack(TrackConfig config)
+    {
+        ApplyConfig(config);
+        GenerateTrackWithCurrentSettings();
+    }
+
+    // Zjednodušená verze pro rychlé použití
+    public void GenerateTrackSimple(TrackType type, int count, float spacing)
+    {
+        trackType = type;
+        gateCount = count;
+        gateSpacing = spacing;
+        GenerateTrackWithCurrentSettings();
+    }
+
+    // === INTERNÍ GENEROVÁNÍ ===
+
+    private void GenerateTrackWithCurrentSettings()
     {
         ClearTrack();
 
@@ -127,24 +163,37 @@ public class TrackGenerator : MonoBehaviour
                 ApplyTexture(gate, i);
             }
 
-            // Přidej oscilaci
+            // Přidej oscilaci s variací per-gate
             if (oscillateGates && oscillationType != OscillationType.None)
             {
                 GateOscillator oscillator = gate.AddComponent<GateOscillator>();
                 oscillator.oscillationType = oscillationType;
                 oscillator.amplitude = oscillationAmplitude;
-                oscillator.speed = oscillationSpeed;
+
+                // Variace rychlosti
+                if (varyOscillationSpeed)
+                {
+                    float speedVar = Random.Range(-speedVariationAmount, speedVariationAmount);
+                    oscillator.speed = oscillationSpeed + speedVar;
+                }
+                else
+                {
+                    oscillator.speed = oscillationSpeed;
+                }
+
+                // Fázový offset pro každou obruč
+                if (varyOscillationPhase)
+                {
+                    oscillator.phaseOffset = i * phaseOffsetPerGate;
+                }
+
                 oscillator.originalPosition = position;
             }
         }
 
-        // Spawn hráče
         SpawnPlayer();
-
-        // Spawn kamery
         SpawnCamera();
 
-        // Nastav pozadí
         if (applyBackgroundColor && cameraInstance != null)
         {
             Camera cam = cameraInstance.GetComponent<Camera>();
@@ -197,20 +246,27 @@ public class TrackGenerator : MonoBehaviour
 
     Quaternion GetGateRotation(int index, Vector3 position)
     {
-        Quaternion baseRotation = Quaternion.Euler(90, 0, 0);
+        // Základní rotace - obruč kolmo na směr pohybu
+        Quaternion baseRotation = Quaternion.identity;
 
         if (rotateGates && index < gateCount - 1)
         {
             Vector3 nextPos = GetGatePositionByType(index + 1);
             Vector3 direction = (nextPos - position).normalized;
 
-            if (direction != Vector3.zero)
+            if (direction.magnitude > 0.01f)
             {
+                // Obruč se otočí tak, aby byla kolmá na směr letu
                 baseRotation = Quaternion.LookRotation(direction);
             }
         }
+        else
+        {
+            // Pokud není rotace zapnutá, obruč směřuje dopředu (kolmo na Z osu)
+            baseRotation = Quaternion.Euler(0, 0, 0);
+        }
 
-        // Přidej offset rotace
+        // Přidej uživatelský offset
         baseRotation *= Quaternion.Euler(gateRotationOffset);
 
         return baseRotation;
@@ -240,9 +296,7 @@ public class TrackGenerator : MonoBehaviour
     {
         if (playerPrefab == null) return;
 
-        // Pozice mírně před první obručí
         Vector3 playerPos = GetGatePositionByType(0) - Vector3.forward * 20f;
-
         playerInstance = Instantiate(playerPrefab, playerPos, Quaternion.identity);
         playerInstance.name = "Player";
     }
@@ -251,7 +305,6 @@ public class TrackGenerator : MonoBehaviour
     {
         if (cameraPrefab == null) return;
 
-        // Umísti kameru za hráče
         Vector3 cameraPos;
         if (playerInstance != null)
         {
@@ -259,14 +312,12 @@ public class TrackGenerator : MonoBehaviour
         }
         else
         {
-            // Fallback pokud není hráč
             cameraPos = GetGatePositionByType(0) + cameraOffsetFromPlayer - Vector3.forward * 20f;
         }
 
         cameraInstance = Instantiate(cameraPrefab, cameraPos, Quaternion.identity);
         cameraInstance.name = "Main Camera";
 
-        // Nastav jako main camera
         if (setCameraAsMainCamera)
         {
             Camera cam = cameraInstance.GetComponent<Camera>();
@@ -276,7 +327,6 @@ public class TrackGenerator : MonoBehaviour
             }
         }
 
-        // Nastav target pro AircraftChaseCamera script
         if (playerInstance != null)
         {
             AircraftChaseCamera chaseCamera = cameraInstance.GetComponent<AircraftChaseCamera>();
@@ -289,7 +339,6 @@ public class TrackGenerator : MonoBehaviour
 
     public void ClearTrack()
     {
-        // Smaž starý track (i pokud reference chybí, najdi ho podle jména)
         if (trackContainer != null)
         {
             if (Application.isPlaying)
@@ -300,7 +349,6 @@ public class TrackGenerator : MonoBehaviour
         }
         else
         {
-            // Fallback: najdi track podle jména
             GameObject foundTrack = GameObject.Find("GeneratedTrack");
             if (foundTrack != null)
             {
@@ -311,7 +359,6 @@ public class TrackGenerator : MonoBehaviour
             }
         }
 
-        // Smaž starého hráče (i pokud reference chybí, najdi ho podle jména)
         if (playerInstance != null)
         {
             if (Application.isPlaying)
@@ -322,7 +369,6 @@ public class TrackGenerator : MonoBehaviour
         }
         else
         {
-            // Fallback: najdi hráče podle jména
             GameObject foundPlayer = GameObject.Find("Player");
             if (foundPlayer != null)
             {
@@ -333,7 +379,6 @@ public class TrackGenerator : MonoBehaviour
             }
         }
 
-        // Smaž starou kameru (i pokud reference chybí)
         if (cameraInstance != null)
         {
             if (Application.isPlaying)
@@ -344,7 +389,6 @@ public class TrackGenerator : MonoBehaviour
         }
         else
         {
-            // Fallback: najdi kameru podle jména
             GameObject foundCamera = GameObject.Find("Main Camera");
             if (foundCamera != null)
             {
@@ -355,14 +399,115 @@ public class TrackGenerator : MonoBehaviour
             }
         }
     }
+
+    private void ApplyConfig(TrackConfig config)
+    {
+        trackType = config.trackType;
+        gateCount = config.gateCount;
+        gateSpacing = config.gateSpacing;
+        startOffset = config.startOffset;
+
+        // Sine
+        sineAmplitude = config.sineAmplitude;
+        sineFrequency = config.sineFrequency;
+        sineHorizontalOffset = config.sineHorizontalOffset;
+
+        // Zigzag
+        zigzagAmplitude = config.zigzagAmplitude;
+
+        // Helix
+        helixRadius = config.helixRadius;
+        helixPitch = config.helixPitch;
+
+        // Lissajous
+        lissajousA = config.lissajousA;
+        lissajousB = config.lissajousB;
+        lissajousAmplitudeX = config.lissajousAmplitudeX;
+        lissajousAmplitudeY = config.lissajousAmplitudeY;
+        lissajousDelta = config.lissajousDelta;
+
+        // Gate customization
+        rotateGates = config.rotateGates;
+        gateRotationOffset = config.gateRotationOffset;
+        oscillateGates = config.oscillateGates;
+        oscillationType = config.oscillationType;
+        oscillationAmplitude = config.oscillationAmplitude;
+        oscillationSpeed = config.oscillationSpeed;
+
+        varyOscillationPhase = config.varyOscillationPhase;
+        phaseOffsetPerGate = config.phaseOffsetPerGate;
+        varyOscillationSpeed = config.varyOscillationSpeed;
+        speedVariationAmount = config.speedVariationAmount;
+
+        // Background
+        backgroundColor = config.backgroundColor;
+        applyBackgroundColor = config.applyBackgroundColor;
+    }
 }
 
-// Komponenta pro oscilaci obruče
+// ===TRACK CONFIG STRUCTURE ===
+[System.Serializable]
+public class TrackConfig
+{
+    // Basic
+    public TrackGenerator.TrackType trackType = TrackGenerator.TrackType.Sine;
+    public int gateCount = 20;
+    public float gateSpacing = 50f;
+    public float startOffset = -40f;
+
+    // Sine
+    public float sineAmplitude = 10f;
+    public float sineFrequency = 0.1f;
+    public float sineHorizontalOffset = 5f;
+
+    // Zigzag
+    public float zigzagAmplitude = 15f;
+
+    // Helix
+    public float helixRadius = 10f;
+    public float helixPitch = 5f;
+
+    // Lissajous
+    public float lissajousA = 1f;
+    public float lissajousB = 2f;
+    public float lissajousAmplitudeX = 10f;
+    public float lissajousAmplitudeY = 10f;
+    public float lissajousDelta = Mathf.PI / 2;
+
+    // Gates
+    public bool rotateGates = true;
+    public Vector3 gateRotationOffset = Vector3.zero;
+    public bool oscillateGates = false;
+    public TrackGenerator.OscillationType oscillationType = TrackGenerator.OscillationType.None;
+    public float oscillationAmplitude = 2f;
+    public float oscillationSpeed = 1f;
+
+    // Variation
+    public bool varyOscillationPhase = true;
+    public float phaseOffsetPerGate = 0.5f;
+    public bool varyOscillationSpeed = false;
+    public float speedVariationAmount = 0.2f;
+
+    // Visual
+    public Color backgroundColor = new Color(0.1f, 0.1f, 0.2f);
+    public bool applyBackgroundColor = true;
+
+    // Konstruktor pro snadné vytváření
+    public TrackConfig(TrackGenerator.TrackType type, int count, float spacing)
+    {
+        trackType = type;
+        gateCount = count;
+        gateSpacing = spacing;
+    }
+}
+
+// === GATE OSCILLATOR ===
 public class GateOscillator : MonoBehaviour
 {
     public TrackGenerator.OscillationType oscillationType;
     public float amplitude = 2f;
     public float speed = 1f;
+    public float phaseOffset = 0f;
     public Vector3 originalPosition;
 
     private float time;
@@ -370,31 +515,32 @@ public class GateOscillator : MonoBehaviour
     void Update()
     {
         time += Time.deltaTime * speed;
+        float t = time + phaseOffset;
 
         Vector3 offset = Vector3.zero;
 
         switch (oscillationType)
         {
             case TrackGenerator.OscillationType.VerticalSine:
-                offset = Vector3.up * Mathf.Sin(time) * amplitude;
+                offset = Vector3.up * Mathf.Sin(t) * amplitude;
                 break;
 
             case TrackGenerator.OscillationType.HorizontalSine:
-                offset = Vector3.right * Mathf.Sin(time) * amplitude;
+                offset = Vector3.right * Mathf.Sin(t) * amplitude;
                 break;
 
             case TrackGenerator.OscillationType.Circular:
                 offset = new Vector3(
-                    Mathf.Cos(time) * amplitude,
-                    Mathf.Sin(time) * amplitude,
+                    Mathf.Cos(t) * amplitude,
+                    Mathf.Sin(t) * amplitude,
                     0
                 );
                 break;
 
             case TrackGenerator.OscillationType.Random:
                 offset = new Vector3(
-                    Mathf.PerlinNoise(time, 0) * amplitude,
-                    Mathf.PerlinNoise(0, time) * amplitude,
+                    Mathf.PerlinNoise(t, 0) * amplitude * 2 - amplitude,
+                    Mathf.PerlinNoise(0, t) * amplitude * 2 - amplitude,
                     0
                 );
                 break;
