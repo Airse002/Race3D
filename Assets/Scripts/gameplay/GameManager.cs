@@ -34,6 +34,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 1 - Easy Tutorial
             new TrackConfig(TrackGenerator.TrackType.Linear, 10, 60f)
             {
+                timeLimitSeconds = 150f,
                 startOffset = -40f,
                 rotateGates = false,
                 oscillateGates = false,
@@ -43,6 +44,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 2 - Gentle Sine
             new TrackConfig(TrackGenerator.TrackType.Sine, 15, 50f)
             {
+                timeLimitSeconds = 150f,
                 sineAmplitude = 8f,
                 sineFrequency = 0.08f,
                 sineHorizontalOffset = 5f,
@@ -54,6 +56,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 3 - Zigzag Challenge
             new TrackConfig(TrackGenerator.TrackType.Zigzag, 20, 45f)
             {
+                timeLimitSeconds = 150f,
                 zigzagAmplitude = 12f,
                 rotateGates = true,
                 oscillateGates = true,
@@ -68,6 +71,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 4 - Helix Spiral
             new TrackConfig(TrackGenerator.TrackType.Helix, 25, 40f)
             {
+                timeLimitSeconds = 150f,
                 helixRadius = 12f,
                 helixPitch = 8f,
                 rotateGates = true,
@@ -83,6 +87,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 5 - Lissajous Madness
             new TrackConfig(TrackGenerator.TrackType.Lissajous, 30, 35f)
             {
+                timeLimitSeconds = 150f,
                 lissajousA = 3f,
                 lissajousB = 2f,
                 lissajousAmplitudeX = 12f,
@@ -103,6 +108,7 @@ public class LevelMenuManager : MonoBehaviour
             // Level 6 - Extreme Random
             new TrackConfig(TrackGenerator.TrackType.Random, 40, 30f)
             {
+                timeLimitSeconds = 150f,
                 rotateGates = true,
                 oscillateGates = true,
                 oscillationType = TrackGenerator.OscillationType.Circular,

@@ -5,6 +5,10 @@ using UnityEditor;
 
 public class TrackGenerator : MonoBehaviour
 {
+    [Header("Race Time")]
+    public float timeLimitSeconds = 180f;
+
+    
     [Header("References")]
     public GameObject gatePrefab;
     public GameObject playerPrefab;
@@ -48,6 +52,13 @@ public class TrackGenerator : MonoBehaviour
     [Header("Gate Customization")]
     public bool rotateGates = true;
     public Vector3 gateRotationOffset = Vector3.zero;
+
+    [Header("Gate Orientation Axis")]
+    public Vector3 gateHoleAxisLocal = Vector3.forward; 
+    // jaká lokální osa gate prefab představuje směr "skrz kruh"
+    // nejčastěji forward (Z), někdy up (Y)
+
+
     public bool oscillateGates = false;
     public OscillationType oscillationType = OscillationType.None;
     public float oscillationAmplitude = 2f;
@@ -157,6 +168,25 @@ public class TrackGenerator : MonoBehaviour
             GameObject gate = Instantiate(gatePrefab, position, rotation, trackContainer.transform);
             gate.name = $"Gate_{i}";
 
+            // Checkpoint detector + index -> na TriggerZone
+            Transform trigger = gate.transform.Find("TriggerZone");
+            if (trigger != null)
+            {
+                var detector = trigger.GetComponent<CheckpointDetector>();
+                if (detector == null) detector = trigger.gameObject.AddComponent<CheckpointDetector>();
+                detector.checkpointIndex = i;
+            }
+            else
+            {
+            Debug.LogWarning($"Gate_{i} nemá child 'TriggerZone'! Dávám detektor na root.");
+            var detector = gate.GetComponent<CheckpointDetector>();
+            if (detector == null) detector = gate.AddComponent<CheckpointDetector>();
+            detector.checkpointIndex = i;
+            }
+
+
+
+
             // Aplikuj texturu
             if (gateTextures != null && gateTextures.Length > 0)
             {
@@ -192,7 +222,15 @@ public class TrackGenerator : MonoBehaviour
         }
 
         SpawnPlayer();
+        
+
         SpawnCamera();
+
+        if (ScoreManager.Instance != null)
+            {
+                ScoreManager.Instance.StartRace(gateCount, timeLimitSeconds);
+            }
+
 
         if (applyBackgroundColor && cameraInstance != null)
         {
@@ -245,32 +283,44 @@ public class TrackGenerator : MonoBehaviour
     }
 
     Quaternion GetGateRotation(int index, Vector3 position)
+{
+    if (!rotateGates)
+        return Quaternion.Euler(gateRotationOffset);
+
+    Vector3 dir;
+
+    if (index < gateCount - 1)
+        dir = GetGatePositionByType(index + 1) - position;
+    else
+        dir = position - GetGatePositionByType(index - 1);
+
+    if (dir.sqrMagnitude < 0.0001f)
+        dir = Vector3.forward;
+
+    dir.Normalize();
+
+    // 1) Otoč tak, aby osa "díry" mířila do směru trati
+    Quaternion rot = Quaternion.FromToRotation(gateHoleAxisLocal.normalized, dir);
+
+    // 2) Stabilizace twistu: zkus udržet "nahoru" podobně jako světový up
+    Vector3 upRef = Vector3.ProjectOnPlane(Vector3.up, dir);
+    if (upRef.sqrMagnitude > 0.0001f)
     {
-        // Základní rotace - obruč kolmo na směr pohybu
-        Quaternion baseRotation = Quaternion.identity;
-
-        if (rotateGates && index < gateCount - 1)
+        Vector3 curUp = Vector3.ProjectOnPlane(rot * Vector3.up, dir);
+        if (curUp.sqrMagnitude > 0.0001f)
         {
-            Vector3 nextPos = GetGatePositionByType(index + 1);
-            Vector3 direction = (nextPos - position).normalized;
-
-            if (direction.magnitude > 0.01f)
-            {
-                // Obruč se otočí tak, aby byla kolmá na směr letu
-                baseRotation = Quaternion.LookRotation(direction);
-            }
+            Quaternion twist = Quaternion.FromToRotation(curUp.normalized, upRef.normalized);
+            rot = twist * rot;
         }
-        else
-        {
-            // Pokud není rotace zapnutá, obruč směřuje dopředu (kolmo na Z osu)
-            baseRotation = Quaternion.Euler(0, 0, 0);
-        }
-
-        // Přidej uživatelský offset
-        baseRotation *= Quaternion.Euler(gateRotationOffset);
-
-        return baseRotation;
     }
+
+    // 3) ruční offset
+    rot *= Quaternion.Euler(gateRotationOffset);
+
+    return rot;
+}
+
+
 
     void ApplyTexture(GameObject gate, int index)
     {
@@ -406,6 +456,8 @@ public class TrackGenerator : MonoBehaviour
         gateCount = config.gateCount;
         gateSpacing = config.gateSpacing;
         startOffset = config.startOffset;
+        timeLimitSeconds = config.timeLimitSeconds;
+
 
         // Sine
         sineAmplitude = config.sineAmplitude;
@@ -450,6 +502,8 @@ public class TrackGenerator : MonoBehaviour
 public class TrackConfig
 {
     // Basic
+    public float timeLimitSeconds = 60f;
+
     public TrackGenerator.TrackType trackType = TrackGenerator.TrackType.Sine;
     public int gateCount = 20;
     public float gateSpacing = 50f;

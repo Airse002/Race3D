@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class CheckpointDetector : MonoBehaviour
 {
@@ -8,13 +7,16 @@ public class CheckpointDetector : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !hasPassed)
+        Debug.Log($"Trigger hit by: {other.name}, tag: {other.tag}");
+
+        if (!hasPassed && other.CompareTag("Player"))
         {
             hasPassed = true;
             ScoreManager.Instance.AddCheckpoint(checkpointIndex);
 
-            // Vizuální feedback (změň barvu, efekt, zvuk...)
-            GetComponent<Renderer>()?.material.SetColor("_Color", Color.green);
+            var r = GetComponent<Renderer>();
+            if (r != null && r.material != null)
+                r.material.color = Color.green;
         }
     }
 }

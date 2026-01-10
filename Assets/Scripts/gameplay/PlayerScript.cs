@@ -55,7 +55,7 @@ public class AircraftRocketController : MonoBehaviour
         }
 
         // Šipky = klasický “flight stick”
-        pitchInput = (kb.upArrowKey.isPressed ? 1f : 0f) + (kb.downArrowKey.isPressed ? -1f : 0f);
+        pitchInput = (kb.downArrowKey.isPressed ? 1f : 0f) + (kb.upArrowKey.isPressed ? -1f : 0f);
         rollInput  = (kb.rightArrowKey.isPressed ? 1f : 0f) + (kb.leftArrowKey.isPressed ? -1f : 0f);
 
         // Volitelné yaw (směrovka)
