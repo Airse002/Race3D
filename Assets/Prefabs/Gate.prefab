@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 670993950908685411}
   - component: {fileID: 3235306331469357531}
   - component: {fileID: 7295381293820724322}
-  - component: {fileID: 7030140661642174103}
   m_Layer: 0
   m_Name: Gate
   m_TagString: Checkpoint
@@ -7659,19 +7658,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1580560300279431017}
   m_Mesh: {fileID: 0}
---- !u!114 &7030140661642174103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1580560300279431017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c761753c4db04f408624dd18371408a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheckpointDetector
-  checkpointIndex: 0
 --- !u!1 &2450725962488639409
 GameObject:
   m_ObjectHideFlags: 0
@@ -7681,8 +7667,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1410612719162115320}
-  - component: {fileID: 4709724022870516398}
   - component: {fileID: 71783039086561260}
+  - component: {fileID: 5662540477775038744}
   m_Layer: 0
   m_Name: TriggerZone
   m_TagString: Untagged
@@ -7705,19 +7691,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2081978487088443802}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4709724022870516398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2450725962488639409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c761753c4db04f408624dd18371408a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  checkpointIndex: 0
 --- !u!65 &71783039086561260
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7739,3 +7712,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.8548716, z: 1}
   m_Center: {x: 0, y: 0.07256422, z: 0}
+--- !u!114 &5662540477775038744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2450725962488639409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c761753c4db04f408624dd18371408a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CheckpointDetector
+  checkpointIndex: 1
+  neonGreen: {r: 0.2, g: 1, b: 0.2, a: 1}
+  emissionIntensity: 6

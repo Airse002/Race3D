@@ -22,6 +22,10 @@ public class AircraftRocketController : MonoBehaviour
     public float linearDrag = 0f;
     public float angularDrag = 2f;
 
+    public bool inputEnabled = true;
+    public bool movementEnabled = true;
+
+
     Rigidbody rb;
 
     // inputs
@@ -47,6 +51,14 @@ public class AircraftRocketController : MonoBehaviour
 
     void Update()
     {
+         if (!inputEnabled)
+        {
+            pitchInput = rollInput = yawInput = 0f;
+            return;
+        }
+
+
+
         var kb = Keyboard.current;
         if (kb == null)
         {
@@ -69,7 +81,15 @@ public class AircraftRocketController : MonoBehaviour
     }
 
     void FixedUpdate()
-    {
+        {
+        if (!movementEnabled)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            return;
+        }
+
+
         float dt = Time.fixedDeltaTime;
 
         // 1) Drž rychlost dopředu (throttle)

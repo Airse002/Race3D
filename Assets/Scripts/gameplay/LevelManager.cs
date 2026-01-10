@@ -74,6 +74,10 @@ public class TrackGenerator : MonoBehaviour
     public Material[] gateTextures;
     public bool randomizeTextures = false;
 
+    [Header("UI / Countdown")]
+public RaceCountdown countdown;
+
+
     [Header("Background")]
     public Color backgroundColor = new Color(0.1f, 0.1f, 0.2f);
     public bool applyBackgroundColor = true;
@@ -166,7 +170,7 @@ public class TrackGenerator : MonoBehaviour
             Quaternion rotation = GetGateRotation(i, position);
 
             GameObject gate = Instantiate(gatePrefab, position, rotation, trackContainer.transform);
-            gate.name = $"Gate_{i}";
+            gate.name = $"Gate_{i:00}";
 
             // Checkpoint detector + index -> na TriggerZone
             Transform trigger = gate.transform.Find("TriggerZone");
@@ -226,21 +230,20 @@ public class TrackGenerator : MonoBehaviour
 
         SpawnCamera();
 
-        if (ScoreManager.Instance != null)
-            {
-                ScoreManager.Instance.StartRace(gateCount, timeLimitSeconds);
-            }
+
+        if (countdown != null && playerInstance != null)
+{
+    countdown.trackGenerator = this;
+    countdown.Begin(playerInstance);
+}
+else
+{
+    ScoreManager.Instance?.StartRace(gateCount, timeLimitSeconds);
+}
+}
 
 
-        if (applyBackgroundColor && cameraInstance != null)
-        {
-            Camera cam = cameraInstance.GetComponent<Camera>();
-            if (cam != null)
-            {
-                cam.backgroundColor = backgroundColor;
-            }
-        }
-    }
+
 
     Vector3 GetGatePositionByType(int index)
     {
