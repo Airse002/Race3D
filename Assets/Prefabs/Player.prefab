@@ -77,13 +77,15 @@ MonoBehaviour:
   cruiseSpeed: 10
   throttleResponse: 3
   pitchRate: 85
-  rollRate: 120
+  rollRate: 200
   yawRate: 45
   angularResponse: 8
   autoLevelStrength: 0
   useGravity: 0
   linearDrag: 0
   angularDrag: 2
+  inputEnabled: 1
+  movementEnabled: 1
 --- !u!136 &4032820216751231511
 CapsuleCollider:
   m_ObjectHideFlags: 0

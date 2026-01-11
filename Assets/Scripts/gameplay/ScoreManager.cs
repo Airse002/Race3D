@@ -7,8 +7,15 @@ public class ScoreManager : MonoBehaviour
 
     public enum RaceState { Idle, Running, Finished, Failed }
 
+    [Header("Singleton")]
+    [Tooltip("Když true, ScoreManager zůstane mezi scénami (DontDestroyOnLoad). Doporučuju false, ať nevznikají duplikáty.")]
+    public bool persistAcrossScenes = false;
+
+    [Tooltip("Když se objeví druhý ScoreManager, tento ho nahradí (lepší při vývoji).")]
+    public bool replaceExistingInstance = true;
+
     [Header("Race Settings")]
-    [Tooltip("Když true = odpočítává do nuly. Když false = stopky (elapsed) + limit pro fail.")]
+    [Tooltip("Když true = odpočítává do nuly. Když false = můžeš zobrazit elapsed a zároveň mít limit pro fail.")]
     public bool countdownMode = true;
 
     [Header("Read Only (runtime)")]
@@ -28,16 +35,35 @@ public class ScoreManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // klidně můžeš vypnout, pokud chceš per-scene
+            if (replaceExistingInstance)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
         }
         else
         {
-            Destroy(gameObject);
-            return;
+            Instance = this;
         }
+
+        if (persistAcrossScenes)
+            DontDestroyOnLoad(gameObject);
+
+        // inicialní event (aby UI vidělo "READY")
+        OnStateChanged?.Invoke(state);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     void Update()
@@ -46,11 +72,7 @@ public class ScoreManager : MonoBehaviour
 
         elapsedTime += Time.deltaTime;
 
-        if (countdownMode)
-            timeRemaining = Mathf.Max(0f, timeLimit - elapsedTime);
-        else
-            timeRemaining = Mathf.Max(0f, timeLimit - elapsedTime); // pořád držíme remaining kvůli failu/HUD
-
+        timeRemaining = Mathf.Max(0f, timeLimit - elapsedTime);
         OnTimeChanged?.Invoke(timeRemaining, timeLimit);
 
         if (timeRemaining <= 0f)
@@ -74,14 +96,13 @@ public class ScoreManager : MonoBehaviour
         OnCheckpointChanged?.Invoke(checkpointsPassed, totalCheckpoints);
         OnTimeChanged?.Invoke(timeRemaining, timeLimit);
 
-        Debug.Log($"Race started. Total checkpoints: {totalCheckpoints}, Time limit: {timeLimit}s");
+        Debug.Log($"[ScoreManager] Race started. Total={totalCheckpoints}, Limit={timeLimit:0.##}s");
     }
 
     public void AddCheckpoint(int checkpointIndex)
     {
         if (state != RaceState.Running) return;
 
-        // musí být po řadě
         if (checkpointIndex == lastCheckpointIndex + 1)
         {
             checkpointsPassed++;
@@ -89,14 +110,14 @@ public class ScoreManager : MonoBehaviour
 
             OnCheckpointChanged?.Invoke(checkpointsPassed, totalCheckpoints);
 
-            Debug.Log($"Checkpoint {checkpointIndex} passed! {checkpointsPassed}/{totalCheckpoints}");
+            Debug.Log($"[ScoreManager] Checkpoint {checkpointIndex} passed! {checkpointsPassed}/{totalCheckpoints}");
 
-            if (checkpointsPassed >= totalCheckpoints)
+            if (checkpointsPassed >= totalCheckpoints && totalCheckpoints > 0)
                 FinishRace();
         }
         else
         {
-            Debug.Log($"Skipped checkpoint! Expected {lastCheckpointIndex + 1}, got {checkpointIndex}");
+            Debug.Log($"[ScoreManager] Skipped checkpoint! Expected {lastCheckpointIndex + 1}, got {checkpointIndex}");
         }
     }
 
@@ -104,17 +125,17 @@ public class ScoreManager : MonoBehaviour
     {
         if (state != RaceState.Running) return;
         SetState(RaceState.Finished);
-        Debug.Log($"Race finished! Time: {elapsedTime:0.00}s");
+        Debug.Log($"[ScoreManager] Race finished! Time: {elapsedTime:0.00}s");
     }
 
     public void FailRace()
     {
         if (state != RaceState.Running) return;
         SetState(RaceState.Failed);
-        Debug.Log("Race failed! Time ran out.");
+        Debug.Log("[ScoreManager] Race failed! Time ran out.");
     }
 
-    // Gettery (pro HUD bez eventů)
+    // Gettery
     public int GetPassed() => checkpointsPassed;
     public int GetTotal() => totalCheckpoints;
     public float GetElapsed() => elapsedTime;
@@ -123,6 +144,7 @@ public class ScoreManager : MonoBehaviour
 
     private void SetState(RaceState newState)
     {
+        if (state == newState) return;
         state = newState;
         OnStateChanged?.Invoke(state);
     }
