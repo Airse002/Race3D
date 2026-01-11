@@ -81,6 +81,7 @@ MonoBehaviour:
   yawRate: 45
   angularResponse: 8
   autoLevelStrength: 0
+  deadzone: 0.15
   useGravity: 0
   linearDrag: 0
   angularDrag: 2

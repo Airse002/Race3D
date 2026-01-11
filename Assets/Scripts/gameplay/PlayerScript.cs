@@ -17,6 +17,8 @@ public class AircraftRocketController : MonoBehaviour
     public float angularResponse = 8f;       // jak “ostře” reaguje na ovládání (větší = ostřejší)
     public float autoLevelStrength = 2.5f;   // 0 = vypnuto, jinak sám rovná náklon když nepřidržuješ roll
 
+    public float deadzone = 0.15f;
+
     [Header("Physics")]
     public bool useGravity = false;
     public float linearDrag = 0f;
@@ -110,7 +112,7 @@ public class AircraftRocketController : MonoBehaviour
         );
 
         // 3) Auto-level (srovná bank/roll když nepřidržuješ ←/→)
-        if (autoLevelStrength > 0.001f && Mathf.Abs(rollInput) < 0.01f)
+        if (autoLevelStrength > deadzone && Mathf.Abs(rollInput) < deadzone)
         {
             // bank angle vůči horizontu (v deg)
             Vector3 f = transform.forward;
