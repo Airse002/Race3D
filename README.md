@@ -4,9 +4,7 @@ Procedurální generátor tratí pro vesmírné závodní hry s raketou prolét�
 
 ## 🎮 Ovládání
 
-- Ovládání rakety zajišťují šipky nebo klávesy WSAD
-
-- **1-6** - Načtení předpřipravených levelů (hlavní klávesnice nebo numpad)
+- Ovládání rakety zajišťují šipky nebo klávesy WSAD, mezerník pro booster rychlosti
 
 ## 🏁 Předpřipravené levely
 

@@ -1771,20 +1771,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   musicSource: {fileID: 0}
   sfxSource: {fileID: 0}
-  menuMusic: {fileID: 8300000, guid: f560cce2ec7bce1408641f02518286ce, type: 3}
+  menuMusic: {fileID: 8300000, guid: bece6b107d6fbf84cbd7c153139532cd, type: 3}
   levelMusic:
-  - {fileID: 8300000, guid: 07e13c1612f11ad49992aee573363246, type: 3}
-  - {fileID: 8300000, guid: 9bb66a32878c5454f8a65791084d29c2, type: 3}
-  - {fileID: 8300000, guid: 39197284a88f70f40b22070440c28eb7, type: 3}
-  - {fileID: 8300000, guid: 4eb3fbaa4229792439b4e7f1eabe338c, type: 3}
-  - {fileID: 8300000, guid: 427041a12f5722e4e9fa06267f69989d, type: 3}
-  - {fileID: 8300000, guid: ee9a23e0342d8d04c95f90e01f2c6d21, type: 3}
-  ringPassSound: {fileID: 8300000, guid: 22aeeccea548159489641ed45243ecef, type: 3}
-  victoryMusic: {fileID: 8300000, guid: bde346e8c4c80ac4da2090cd111f841a, type: 3}
-  defeatMusic: {fileID: 8300000, guid: 8bc6b0bea3c99674fa67cac4589ab818, type: 3}
-  buttonClickSound: {fileID: 8300000, guid: 3d940b72618092343a9f7db17d783285, type: 3}
-  countdownBeep: {fileID: 8300000, guid: ebfedd0eb6fdff148906fda29bff4a5e, type: 3}
-  countdownGo: {fileID: 8300000, guid: ab456601ed7c0ae4d8375114b385d8e5, type: 3}
+  - {fileID: 8300000, guid: f5410111ccffe1348b43c9faf86023a0, type: 3}
+  - {fileID: 8300000, guid: c3e4b2d7b8656d84692f00600583af08, type: 3}
+  - {fileID: 8300000, guid: 444ca7f692f3d374e94ee22ab6d819b8, type: 3}
+  - {fileID: 8300000, guid: 9de0241a5251f4646ab8145a37b96a47, type: 3}
+  - {fileID: 8300000, guid: 8e7fe40e1907fa442b0a21daef5f7c9f, type: 3}
+  - {fileID: 8300000, guid: 2ec675f9e23b7164dbb4e329ab8be790, type: 3}
+  ringPassSound: {fileID: 8300000, guid: daa55f860f41dd646866c1997ecca176, type: 3}
+  victoryMusic: {fileID: 8300000, guid: a87fec77db89b994897252a8619c2c12, type: 3}
+  defeatMusic: {fileID: 8300000, guid: 7f02bf26fe6c54a4d905d267cd248464, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: 2ae490cfa0c184c41ad604987d58117b, type: 3}
+  countdownBeep: {fileID: 8300000, guid: 645d54760bc8ab248886782b73eac9cc, type: 3}
+  countdownGo: {fileID: 8300000, guid: b693ff73c171ff64888829d0725376c8, type: 3}
   musicVolume: 0.6
   sfxVolume: 0.8
   persistBetweenScenes: 1
