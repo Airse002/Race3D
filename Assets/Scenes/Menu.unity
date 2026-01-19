@@ -1740,6 +1740,69 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &906280595
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 906280597}
+  - component: {fileID: 906280596}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &906280596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906280595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 515263db9561aa44183c1d91c48083f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  musicSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  menuMusic: {fileID: 8300000, guid: f560cce2ec7bce1408641f02518286ce, type: 3}
+  levelMusic:
+  - {fileID: 8300000, guid: 07e13c1612f11ad49992aee573363246, type: 3}
+  - {fileID: 8300000, guid: 9bb66a32878c5454f8a65791084d29c2, type: 3}
+  - {fileID: 8300000, guid: 39197284a88f70f40b22070440c28eb7, type: 3}
+  - {fileID: 8300000, guid: 4eb3fbaa4229792439b4e7f1eabe338c, type: 3}
+  - {fileID: 8300000, guid: 427041a12f5722e4e9fa06267f69989d, type: 3}
+  - {fileID: 8300000, guid: ee9a23e0342d8d04c95f90e01f2c6d21, type: 3}
+  ringPassSound: {fileID: 8300000, guid: 22aeeccea548159489641ed45243ecef, type: 3}
+  victoryMusic: {fileID: 8300000, guid: bde346e8c4c80ac4da2090cd111f841a, type: 3}
+  defeatMusic: {fileID: 8300000, guid: 8bc6b0bea3c99674fa67cac4589ab818, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: 3d940b72618092343a9f7db17d783285, type: 3}
+  countdownBeep: {fileID: 8300000, guid: ebfedd0eb6fdff148906fda29bff4a5e, type: 3}
+  countdownGo: {fileID: 8300000, guid: ab456601ed7c0ae4d8375114b385d8e5, type: 3}
+  musicVolume: 0.6
+  sfxVolume: 0.8
+  persistBetweenScenes: 1
+--- !u!4 &906280597
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906280595}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1323975910
 GameObject:
   m_ObjectHideFlags: 0
@@ -2280,3 +2343,4 @@ SceneRoots:
   - {fileID: 884481715}
   - {fileID: 275567407}
   - {fileID: 248323203}
+  - {fileID: 906280597}

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class LevelsCatalog
 {
@@ -41,9 +41,11 @@ public static class LevelsCatalog
 
         levels = new LevelDef[]
         {
+            // Level 1 - Tutorial (musíš proletět všechny obruče)
             new LevelDef("Tutorial",
                 new TrackConfig(TrackGenerator.TrackType.Linear, 10, 60f)
                 {
+                    requiredPercentage = 1.0f,  // 100% - musíš proletět všech 10
                     startOffset = -40f,
                     rotateGates = true,
                     oscillateGates = false,
@@ -52,9 +54,11 @@ public static class LevelsCatalog
                 }
             ),
 
+            // Level 2 - Gentle Sine (stačí 90%)
             new LevelDef("Gentle Sine",
                 new TrackConfig(TrackGenerator.TrackType.Sine, 15, 50f)
                 {
+                    requiredPercentage = 0.9f,  // 90% - stačí 14 z 15
                     sineAmplitude = 8f,
                     sineFrequency = 0.08f,
                     sineHorizontalOffset = 5f,
@@ -65,9 +69,11 @@ public static class LevelsCatalog
                 }
             ),
 
+            // Level 3 - Zigzag (stačí 85%)
             new LevelDef("Zigzag",
                 new TrackConfig(TrackGenerator.TrackType.Zigzag, 20, 45f)
                 {
+                    requiredPercentage = 0.85f,  // 85% - stačí 17 z 20
                     zigzagAmplitude = 12f,
                     rotateGates = true,
                     oscillateGates = true,
@@ -81,9 +87,11 @@ public static class LevelsCatalog
                 }
             ),
 
+            // Level 4 - Helix Spiral (stačí 80%)
             new LevelDef("Helix Spiral",
                 new TrackConfig(TrackGenerator.TrackType.Helix, 25, 40f)
                 {
+                    requiredPercentage = 0.8f,  // 80% - stačí 20 z 25
                     helixRadius = 12f,
                     helixPitch = 8f,
                     rotateGates = true,
@@ -98,9 +106,11 @@ public static class LevelsCatalog
                 }
             ),
 
+            // Level 5 - Lissajous (stačí 75%)
             new LevelDef("Lissajous",
                 new TrackConfig(TrackGenerator.TrackType.Lissajous, 30, 35f)
                 {
+                    requiredPercentage = 0.75f,  // 75% - stačí 23 z 30
                     lissajousA = 3f,
                     lissajousB = 2f,
                     lissajousAmplitudeX = 12f,
@@ -120,9 +130,11 @@ public static class LevelsCatalog
                 }
             ),
 
+            // Level 6 - Extreme Chaos (stačí 70%)
             new LevelDef("Extreme Chaos",
                 new TrackConfig(TrackGenerator.TrackType.Random, 40, 30f)
                 {
+                    requiredPercentage = 0.7f,  // 70% - stačí 28 z 40
                     rotateGates = true,
                     oscillateGates = true,
                     oscillationType = TrackGenerator.OscillationType.Circular,

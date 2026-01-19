@@ -7,11 +7,17 @@ public class RaceHUD : MonoBehaviour
     public TMP_Text checkpointText;
     public TMP_Text timeText;
     public TMP_Text stateText;
+    public TMP_Text levelInfoText;  // NOVÉ: zobrazí info o levelu (název, cíl)
+    public TMP_Text bestScoreText;  // NOVÉ: nejlepší skóre pro aktuální level
 
     [Header("Smooth")]
     public float timeSmoothSpeed = 12f;
 
+    [Header("Level Info Display")]
+    public float levelInfoDisplayTime = 4f;  // Jak dlouho se zobrazí info o levelu
+
     float shownTime;
+    private bool levelInfoShown = false;
 
     void OnEnable()
     {
@@ -40,10 +46,16 @@ public class RaceHUD : MonoBehaviour
         // inicializace UI (kdyby eventy nepřišly hned)
         if (ScoreManager.Instance != null)
         {
-            HandleCheckpoint(ScoreManager.Instance.GetPassed(), ScoreManager.Instance.GetTotal());
+            HandleCheckpoint(ScoreManager.Instance.GetPassed(), ScoreManager.Instance.GetRequired());
             HandleTime(ScoreManager.Instance.GetRemaining(), 1f);
             HandleState(ScoreManager.Instance.GetState());
         }
+
+        // Zobraz info o levelu při startu
+        ShowLevelInfo();
+
+        // Zobraz best score
+        ShowBestScore();
     }
 
     void Update()
@@ -58,10 +70,13 @@ public class RaceHUD : MonoBehaviour
             timeText.text = $"TIME  {FormatTime(shownTime)}";
     }
 
-    void HandleCheckpoint(int passed, int total)
+    void HandleCheckpoint(int passed, int required)
     {
         if (checkpointText != null)
-            checkpointText.text = $"CHECKPOINT  {passed} / {total}";
+        {
+            int total = ScoreManager.Instance.GetTotal();
+            checkpointText.text = $"CHECKPOINT  {passed} / {required} ({total} total)";
+        }
     }
 
     void HandleTime(float remaining, float limit)
@@ -76,10 +91,79 @@ public class RaceHUD : MonoBehaviour
 
         switch (state)
         {
-            case ScoreManager.RaceState.Idle:     stateText.text = "READY"; break;
-            case ScoreManager.RaceState.Running:  stateText.text = ""; break;
-            case ScoreManager.RaceState.Finished: stateText.text = "FINISH!"; break;
-            case ScoreManager.RaceState.Failed:   stateText.text = "FAILED"; break;
+            case ScoreManager.RaceState.Idle:
+                stateText.text = "READY";
+                break;
+
+            case ScoreManager.RaceState.Running:
+                stateText.text = "";
+                // Schovej level info po startu
+                if (levelInfoShown && levelInfoText != null)
+                {
+                    levelInfoText.gameObject.SetActive(false);
+                }
+                break;
+
+            case ScoreManager.RaceState.Finished:
+                stateText.text = "FINISH!";
+                break;
+
+            case ScoreManager.RaceState.Failed:
+                stateText.text = "FAILED";
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Zobrazí informace o levelu (název, cíl) na pár sekund
+    /// </summary>
+    void ShowLevelInfo()
+    {
+        if (levelInfoText == null) return;
+
+        int levelIndex = GameSession.SelectedLevelIndex;
+        string levelName = LevelsCatalog.GetName(levelIndex);
+        var config = LevelsCatalog.GetConfig(levelIndex);
+
+        int required = config.GetRequiredGateCount();
+        int total = config.gateCount;
+        float percentage = config.requiredPercentage * 100f;
+
+        levelInfoText.text = $"<size=150%><b>{levelName}</b></size>\n" +
+                            $"Proletět alespoň <b>{required}/{total}</b> obručí ({percentage:F0}%)";
+
+        levelInfoText.gameObject.SetActive(true);
+        levelInfoShown = true;
+
+        // Schovej po určité době (lze udělat i přes coroutine)
+        Invoke(nameof(HideLevelInfo), levelInfoDisplayTime);
+    }
+
+    void HideLevelInfo()
+    {
+        if (levelInfoText != null)
+            levelInfoText.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Zobrazí nejlepší skóre pro aktuální level
+    /// </summary>
+    void ShowBestScore()
+    {
+        if (bestScoreText == null) return;
+        if (ScoreManager.Instance == null) return;
+
+        int levelIndex = GameSession.SelectedLevelIndex;
+        int bestScore = ScoreManager.Instance.GetBestScore(levelIndex);
+
+        if (bestScore > 0)
+        {
+            int total = LevelsCatalog.GetConfig(levelIndex).gateCount;
+            bestScoreText.text = $"Best: {bestScore}/{total}";
+        }
+        else
+        {
+            bestScoreText.text = "Best: ---";
         }
     }
 

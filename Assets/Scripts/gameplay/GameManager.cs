@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem; // NOVÝ INPUT SYSTEM
 
+
 public class LevelMenuManager : MonoBehaviour
 {
     public TrackGenerator trackGenerator;

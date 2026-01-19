@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -21,15 +22,19 @@ public class ScoreManager : MonoBehaviour
     [Header("Read Only (runtime)")]
     [SerializeField] private RaceState state = RaceState.Idle;
     [SerializeField] private int totalCheckpoints = 0;
+    [SerializeField] private int requiredCheckpoints = 0;  // NOVÉ: kolik potřebuješ k vítězství
     [SerializeField] private int checkpointsPassed = 0;
-    [SerializeField] private int lastCheckpointIndex = -1;
+    [SerializeField] private float requiredPercentage = 1.0f; // NOVÉ: procento k vítězství
+
+    // ZMĚNA: místo sledování posledního indexu používáme HashSet
+    private HashSet<int> passedCheckpointIndices = new HashSet<int>();
 
     [SerializeField] private float timeLimit = 60f;
     [SerializeField] private float elapsedTime = 0f;
     [SerializeField] private float timeRemaining = 60f;
 
     // Events (pro UI)
-    public event Action<int, int> OnCheckpointChanged; // passed, total
+    public event Action<int, int> OnCheckpointChanged; // passed, required (ZMĚNA: required místo total)
     public event Action<float, float> OnTimeChanged;    // remaining, limit
     public event Action<RaceState> OnStateChanged;
 
@@ -81,63 +86,117 @@ public class ScoreManager : MonoBehaviour
 
     // === PUBLIC API ===
 
-    public void StartRace(int total, float limitSeconds)
+    /// <summary>
+    /// Zahájí závod s procentuálním požadavkem na průlet obručí
+    /// </summary>
+    /// <param name="total">Celkový počet obručí v levelu</param>
+    /// <param name="limitSeconds">Časový limit</param>
+    /// <param name="requiredPercent">Procento obručí potřebné k vítězství (0.0 - 1.0)</param>
+    public void StartRace(int total, float limitSeconds, float requiredPercent = 1.0f)
     {
         totalCheckpoints = Mathf.Max(0, total);
         timeLimit = Mathf.Max(1f, limitSeconds);
+        requiredPercentage = Mathf.Clamp01(requiredPercent);
+        requiredCheckpoints = Mathf.CeilToInt(totalCheckpoints * requiredPercentage);
 
         checkpointsPassed = 0;
-        lastCheckpointIndex = -1;
+        passedCheckpointIndices.Clear();
         elapsedTime = 0f;
         timeRemaining = timeLimit;
 
         SetState(RaceState.Running);
 
-        OnCheckpointChanged?.Invoke(checkpointsPassed, totalCheckpoints);
+        OnCheckpointChanged?.Invoke(checkpointsPassed, requiredCheckpoints);
         OnTimeChanged?.Invoke(timeRemaining, timeLimit);
 
-        Debug.Log($"[ScoreManager] Race started. Total={totalCheckpoints}, Limit={timeLimit:0.##}s");
+        Debug.Log($"[ScoreManager] Race started. Total={totalCheckpoints}, Required={requiredCheckpoints} ({requiredPercentage * 100:F0}%), Limit={timeLimit:0.##}s");
     }
 
+    /// <summary>
+    /// Přidá průlet obručí - funguje BEZ OHLEDU NA POŘADÍ
+    /// </summary>
     public void AddCheckpoint(int checkpointIndex)
     {
         if (state != RaceState.Running) return;
 
-        if (checkpointIndex == lastCheckpointIndex + 1)
+        // Zkontroluj, jestli už jsi touto obručí neproletěl
+        if (passedCheckpointIndices.Contains(checkpointIndex))
         {
-            checkpointsPassed++;
-            lastCheckpointIndex = checkpointIndex;
-
-            OnCheckpointChanged?.Invoke(checkpointsPassed, totalCheckpoints);
-
-            Debug.Log($"[ScoreManager] Checkpoint {checkpointIndex} passed! {checkpointsPassed}/{totalCheckpoints}");
-
-            if (checkpointsPassed >= totalCheckpoints && totalCheckpoints > 0)
-                FinishRace();
+            Debug.Log($"[ScoreManager] Checkpoint {checkpointIndex} již byl proletěn dříve - ignoruji.");
+            return;
         }
-        else
-        {
-            Debug.Log($"[ScoreManager] Skipped checkpoint! Expected {lastCheckpointIndex + 1}, got {checkpointIndex}");
-        }
+
+        // Přidej do seznamu proletěných
+        passedCheckpointIndices.Add(checkpointIndex);
+        checkpointsPassed++;
+
+        OnCheckpointChanged?.Invoke(checkpointsPassed, requiredCheckpoints);
+
+        Debug.Log($"[ScoreManager] Checkpoint {checkpointIndex} passed! {checkpointsPassed}/{requiredCheckpoints} (total: {totalCheckpoints})");
+
+        // Zavolej audio event pro průlet obručí
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayRingPass();
+
+        // Zkontroluj vítězství
+        if (checkpointsPassed >= requiredCheckpoints)
+            FinishRace();
     }
 
     public void FinishRace()
     {
         if (state != RaceState.Running) return;
         SetState(RaceState.Finished);
-        Debug.Log($"[ScoreManager] Race finished! Time: {elapsedTime:0.00}s");
+
+        // Ulož best score pro aktuální level
+        SaveBestScore();
+
+        Debug.Log($"[ScoreManager] Race finished! Time: {elapsedTime:0.00}s, Checkpoints: {checkpointsPassed}/{totalCheckpoints}");
+
+        // Zavolej audio pro vítězství
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayVictory();
     }
 
     public void FailRace()
     {
         if (state != RaceState.Running) return;
         SetState(RaceState.Failed);
-        Debug.Log("[ScoreManager] Race failed! Time ran out.");
+        Debug.Log($"[ScoreManager] Race failed! Time ran out. Checkpoints: {checkpointsPassed}/{requiredCheckpoints}");
+
+        // Zavolej audio pro prohru
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayDefeat();
     }
 
-    // Gettery
+    // === SAVE/LOAD ===
+
+    private void SaveBestScore()
+    {
+        int levelIndex = GameSession.SelectedLevelIndex;
+        string key = $"Level_{levelIndex}_BestScore";
+
+        int currentBest = PlayerPrefs.GetInt(key, 0);
+        if (checkpointsPassed > currentBest)
+        {
+            PlayerPrefs.SetInt(key, checkpointsPassed);
+            PlayerPrefs.Save();
+            Debug.Log($"[ScoreManager] New best score for level {levelIndex}: {checkpointsPassed}");
+        }
+    }
+
+    public int GetBestScore(int levelIndex)
+    {
+        string key = $"Level_{levelIndex}_BestScore";
+        return PlayerPrefs.GetInt(key, 0);
+    }
+
+    // === GETTERY ===
+
     public int GetPassed() => checkpointsPassed;
     public int GetTotal() => totalCheckpoints;
+    public int GetRequired() => requiredCheckpoints;
+    public float GetRequiredPercentage() => requiredPercentage;
     public float GetElapsed() => elapsedTime;
     public float GetRemaining() => timeRemaining;
     public RaceState GetState() => state;

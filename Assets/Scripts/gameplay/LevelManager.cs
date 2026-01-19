@@ -228,7 +228,7 @@ public class TrackGenerator : MonoBehaviour
         if (countdown == null)
         {
             // auto-find (když jsi zapomněl přiřadit)
-            countdown = FindObjectOfType<RaceCountdown>(true);
+            countdown = FindFirstObjectByType<RaceCountdown>();
         }
 
         if (countdown != null && playerInstance != null)
@@ -239,7 +239,9 @@ public class TrackGenerator : MonoBehaviour
         else
         {
             // bez countdownu -> start hned
-            ScoreManager.Instance?.StartRace(gateCount, timeLimitSeconds);
+            // ZMĚNA: předej i requiredPercentage z konfigurace
+            var config = LevelsCatalog.GetConfig(GameSession.SelectedLevelIndex);
+            ScoreManager.Instance?.StartRace(gateCount, timeLimitSeconds, config.requiredPercentage);
         }
     }
 
@@ -259,105 +261,90 @@ public class TrackGenerator : MonoBehaviour
 
         // Bezpečnost: když je tam collider, ať je trigger
         var col = host.GetComponent<Collider>();
-        if (col != null)
-            col.isTrigger = true;
+        if (col != null) col.isTrigger = true;
     }
 
-    private void AddOscillation(GameObject gate, int index, Vector3 originalPos)
+    private void AddOscillation(GameObject gate, int index, Vector3 basePos)
     {
-        GateOscillator oscillator = gate.AddComponent<GateOscillator>();
-        oscillator.oscillationType = oscillationType;
-        oscillator.amplitude = oscillationAmplitude;
-
-        if (varyOscillationSpeed)
-        {
-            float speedVar = Random.Range(-speedVariationAmount, speedVariationAmount);
-            oscillator.speed = Mathf.Max(0.01f, oscillationSpeed + speedVar);
-        }
-        else
-        {
-            oscillator.speed = oscillationSpeed;
-        }
+        var osc = gate.AddComponent<GateOscillator>();
+        osc.oscillationType = oscillationType;
+        osc.amplitude = oscillationAmplitude;
+        osc.speed = oscillationSpeed;
+        osc.originalPosition = basePos;
 
         if (varyOscillationPhase)
-            oscillator.phaseOffset = index * phaseOffsetPerGate;
+            osc.phaseOffset = index * phaseOffsetPerGate;
 
-        oscillator.originalPosition = originalPos;
+        if (varyOscillationSpeed)
+            osc.speed *= (1f + Random.Range(-speedVariationAmount, speedVariationAmount));
     }
 
-    private void ApplyCameraBackground()
+    private Vector3 GetGatePositionByType(int index)
     {
-        if (!applyBackgroundColor || cameraInstance == null) return;
-
-        Camera cam = cameraInstance.GetComponent<Camera>();
-        if (cam != null)
-            cam.backgroundColor = backgroundColor;
-    }
-
-    // === POSITIONS / ROTATIONS ===
-
-    Vector3 GetGatePositionByType(int index)
-    {
-        float t = index * gateSpacing;
-        float z = startOffset + t;
+        float z = startOffset + index * gateSpacing;
+        float t = (float)index / Mathf.Max(1, gateCount - 1);
 
         switch (trackType)
         {
             case TrackType.Linear:
-                // lineární směr (když chceš, můžeš použít linearDirection)
-                return new Vector3(0, 0, z);
+                return linearDirection.normalized * z;
 
             case TrackType.Sine:
-                float y = sineAmplitude * Mathf.Sin(sineFrequency * z);
-                float x = sineHorizontalOffset * Mathf.Sin(sineFrequency * z + Mathf.PI / 2);
+                float x = Mathf.Sin(index * sineFrequency * 2f * Mathf.PI) * sineAmplitude;
+                float y = Mathf.Sin(index * sineFrequency * 2f * Mathf.PI + sineHorizontalOffset) * sineAmplitude * 0.5f;
                 return new Vector3(x, y, z);
 
             case TrackType.Zigzag:
-                float zigzagX = (index % 2 == 0) ? -zigzagAmplitude : zigzagAmplitude;
-                return new Vector3(zigzagX, 0, z);
+                float zx = ((index % 2 == 0) ? -1f : 1f) * zigzagAmplitude;
+                return new Vector3(zx, 0, z);
 
             case TrackType.Helix:
-                float angle = (t / helixPitch) * 2f * Mathf.PI;
-                float helixX = helixRadius * Mathf.Cos(angle);
-                float helixY = helixRadius * Mathf.Sin(angle);
-                return new Vector3(helixX, helixY, z);
+                float angle = t * 2f * Mathf.PI * (gateCount / 10f);
+                float hx = Mathf.Cos(angle) * helixRadius;
+                float hy = Mathf.Sin(angle) * helixRadius;
+                float hz = t * helixPitch * gateCount;
+                return new Vector3(hx, hy, hz);
 
             case TrackType.Lissajous:
-                float lissX = lissajousAmplitudeX * Mathf.Sin(lissajousA * t + lissajousDelta);
-                float lissY = lissajousAmplitudeY * Mathf.Sin(lissajousB * t);
-                return new Vector3(lissX, lissY, z);
+                float lx = lissajousAmplitudeX * Mathf.Sin(lissajousA * t * 2f * Mathf.PI + lissajousDelta);
+                float ly = lissajousAmplitudeY * Mathf.Sin(lissajousB * t * 2f * Mathf.PI);
+                return new Vector3(lx, ly, z);
 
             case TrackType.Random:
-                float randX = Random.Range(-15f, 15f);
-                float randY = Random.Range(-15f, 15f);
-                return new Vector3(randX, randY, z);
+                Vector3 randomOffset = new Vector3(
+                    Random.Range(-20f, 20f),
+                    Random.Range(-10f, 10f),
+                    0
+                );
+                return new Vector3(randomOffset.x, randomOffset.y, z);
 
             default:
-                return new Vector3(0, 0, z);
+                return Vector3.forward * z;
         }
     }
 
-    Quaternion GetGateRotation(int index, Vector3 position)
+    private Quaternion GetGateRotation(int index, Vector3 position)
     {
-        if (!rotateGates)
-            return Quaternion.Euler(gateRotationOffset);
+        if (!rotateGates) return Quaternion.identity;
 
+        // 1) direction from this gate to next
         Vector3 dir;
-
-        if (gateCount <= 1)
-            dir = Vector3.forward;
-        else if (index < gateCount - 1)
-            dir = GetGatePositionByType(index + 1) - position;
+        if (index < gateCount - 1)
+        {
+            Vector3 nextPos = GetGatePositionByType(index + 1);
+            dir = (nextPos - position).normalized;
+        }
         else
-            dir = position - GetGatePositionByType(index - 1);
+        {
+            Vector3 prevPos = GetGatePositionByType(index - 1);
+            dir = (position - prevPos).normalized;
+        }
 
         if (dir.sqrMagnitude < 0.0001f)
             dir = Vector3.forward;
 
-        dir.Normalize();
-
-        // 1) align hole axis to dir
-        Quaternion rot = Quaternion.FromToRotation(gateHoleAxisLocal.normalized, dir);
+        // build rotation aligning gateHoleAxisLocal with dir
+        Quaternion rot = Quaternion.FromToRotation(gateHoleAxisLocal, dir);
 
         // 2) stabilize twist (keep "up" close to world up)
         Vector3 upRef = Vector3.ProjectOnPlane(Vector3.up, dir);
@@ -429,6 +416,18 @@ public class TrackGenerator : MonoBehaviour
         }
     }
 
+    void ApplyCameraBackground()
+    {
+        if (!applyBackgroundColor) return;
+
+        Camera cam = Camera.main;
+        if (cam == null && cameraInstance != null)
+            cam = cameraInstance.GetComponent<Camera>();
+
+        if (cam != null)
+            cam.backgroundColor = backgroundColor;
+    }
+
     // === CONFIG ===
 
     private void ApplyConfig(TrackConfig config)
@@ -487,60 +486,85 @@ public class TrackGenerator : MonoBehaviour
 }
 
 // === TRACK CONFIG ===
+/// <summary>
+/// Konfigurace pro jeden level/trať
+/// ZMĚNA: Přidáno requiredPercentage pro procento obručí k vítězství
+/// </summary>
 [System.Serializable]
 public class TrackConfig
 {
-    // Basic
-    public float timeLimitSeconds = 60f;
+    // === WIN CONDITION (NOVÉ) ===
+    [Header("Win Condition")]
+    [Tooltip("Procento obručí, které musí hráč proletět k vítězství (0.0 - 1.0)")]
+    [Range(0.1f, 1.0f)]
+    public float requiredPercentage = 1.0f;  // Default 100%
 
+    // === BASIC SETTINGS ===
+    [Header("Time")]
+    public float timeLimitSeconds = 180f;
+
+    [Header("Track Type")]
     public TrackGenerator.TrackType trackType = TrackGenerator.TrackType.Sine;
     public int gateCount = 20;
     public float gateSpacing = 50f;
     public float startOffset = -40f;
 
-    // Sine
+    // === TRACK TYPE PARAMETERS ===
+    [Header("Sine Wave")]
     public float sineAmplitude = 10f;
     public float sineFrequency = 0.1f;
     public float sineHorizontalOffset = 5f;
 
-    // Zigzag
+    [Header("Zigzag")]
     public float zigzagAmplitude = 15f;
 
-    // Helix
+    [Header("Helix/Spring")]
     public float helixRadius = 10f;
     public float helixPitch = 5f;
 
-    // Lissajous
+    [Header("Lissajous Curve")]
     public float lissajousA = 1f;
     public float lissajousB = 2f;
     public float lissajousAmplitudeX = 10f;
     public float lissajousAmplitudeY = 10f;
     public float lissajousDelta = Mathf.PI / 2;
 
-    // Gates
+    // === GATE CUSTOMIZATION ===
+    [Header("Gates")]
     public bool rotateGates = true;
     public Vector3 gateRotationOffset = Vector3.zero;
+
+    [Header("Gate Oscillation")]
     public bool oscillateGates = false;
     public TrackGenerator.OscillationType oscillationType = TrackGenerator.OscillationType.None;
     public float oscillationAmplitude = 2f;
     public float oscillationSpeed = 1f;
 
-    // Variation
+    [Header("Per-Gate Variation")]
     public bool varyOscillationPhase = true;
     public float phaseOffsetPerGate = 0.5f;
     public bool varyOscillationSpeed = false;
     public float speedVariationAmount = 0.2f;
 
-    // Visual
+    // === VISUAL ===
+    [Header("Visual")]
     public Color backgroundColor = new Color(0.1f, 0.1f, 0.2f);
     public bool applyBackgroundColor = true;
 
-    // Ctor
+    // === CONSTRUCTORS ===
     public TrackConfig(TrackGenerator.TrackType type, int count, float spacing)
     {
         trackType = type;
         gateCount = count;
         gateSpacing = spacing;
+    }
+
+    /// <summary>
+    /// Vypočítá požadovaný počet obručí k vítězství
+    /// </summary>
+    public int GetRequiredGateCount()
+    {
+        return Mathf.CeilToInt(gateCount * requiredPercentage);
     }
 }
 

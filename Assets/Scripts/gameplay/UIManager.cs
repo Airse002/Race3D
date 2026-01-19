@@ -11,6 +11,13 @@ public class UIManager : MonoBehaviour
     public GameObject resultsPanel;
     public GameObject pausePanel;
 
+    [Header("HUD Elements")]
+    public Slider boosterSlider;           // Slider pro vizualizaci boosteru
+    public TMP_Text boosterText;           // Text pro % hodnotu (volitelné)
+    public Image boosterFillImage;         // Image slider fill pro změnu barvy
+    public Color boosterFullColor = Color.green;
+    public Color boosterEmptyColor = Color.red;
+
     [Header("Results UI")]
     public TMP_Text titleText;
     public TMP_Text timeText;
@@ -31,6 +38,7 @@ public class UIManager : MonoBehaviour
     public string playSceneName = "PlayScene";
 
     bool isPaused;
+    AircraftRocketController playerController;
 
     void Awake()
     {
@@ -51,6 +59,26 @@ public class UIManager : MonoBehaviour
         if (resumeButton != null) resumeButton.onClick.AddListener(Resume);
         if (pauseRetryButton != null) pauseRetryButton.onClick.AddListener(Retry);
         if (pauseMenuButton != null) pauseMenuButton.onClick.AddListener(GoMenu);
+
+        // Najít player controller
+        FindPlayerController();
+
+        // Inicializace booster slideru
+        if (boosterSlider != null)
+        {
+            boosterSlider.minValue = 0f;
+            boosterSlider.maxValue = 100f;
+            boosterSlider.value = 100f;
+        }
+    }
+
+    void FindPlayerController()
+    {
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            playerController = player.GetComponent<AircraftRocketController>();
+        }
     }
 
     void OnEnable()
@@ -71,6 +99,38 @@ public class UIManager : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             TogglePause();
+        }
+
+        // Update booster UI
+        UpdateBoosterUI();
+    }
+
+    void UpdateBoosterUI()
+    {
+        if (playerController == null)
+        {
+            FindPlayerController();
+            return;
+        }
+
+        float boosterPercentage = playerController.GetBoosterPercentage();
+
+        // Update slider
+        if (boosterSlider != null)
+        {
+            boosterSlider.value = boosterPercentage;
+        }
+
+        // Update text (pokud existuje)
+        if (boosterText != null)
+        {
+            boosterText.text = $"BOOST: {boosterPercentage:F0}%";
+        }
+
+        // Update barva podle hodnoty
+        if (boosterFillImage != null)
+        {
+            boosterFillImage.color = Color.Lerp(boosterEmptyColor, boosterFullColor, boosterPercentage / 100f);
         }
     }
 

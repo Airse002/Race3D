@@ -8,13 +8,20 @@ public class AircraftRocketController : MonoBehaviour
     public float cruiseSpeed = 25f;          // cílová rychlost dopředu
     public float throttleResponse = 3f;      // jak rychle se dorovnává na cruiseSpeed
 
+    [Header("Boost")]
+    public float boostMultiplier = 2f;       // Násobič rychlosti při boostu
+    public float maxBooster = 100f;          // Maximální hodnota boosteru
+    public float boosterDrainRate = 25f;     // Jak rychle se vyčerpává za sekundu
+    public float boosterRechargeRate = 15f;  // Jak rychle se dobíjí za sekundu
+    public float boosterRechargeDelay = 0.5f; // Zpoždění před začátkem dobíjení po použití
+
     [Header("Rates (deg/sec)")]
     public float pitchRate = 85f;            // ↑/↓
-    public float rollRate  = 120f;           // ←/→
-    public float yawRate   = 45f;            // A/D nebo Q/E (volitelné)
+    public float rollRate = 120f;           // ←/→
+    public float yawRate = 45f;            // A/D nebo Q/E (volitelné)
 
     [Header("Feel")]
-    public float angularResponse = 8f;       // jak “ostře” reaguje na ovládání (větší = ostřejší)
+    public float angularResponse = 8f;       // jak "ostře" reaguje na ovládání (větší = ostřejší)
     public float autoLevelStrength = 2.5f;   // 0 = vypnuto, jinak sám rovná náklon když nepřidržuješ roll
 
     public float deadzone = 0.15f;
@@ -27,7 +34,6 @@ public class AircraftRocketController : MonoBehaviour
     public bool inputEnabled = true;
     public bool movementEnabled = true;
 
-
     Rigidbody rb;
 
     // inputs
@@ -36,6 +42,11 @@ public class AircraftRocketController : MonoBehaviour
     float yawInput;     // + = yaw doprava
 
     float currentSpeed;
+
+    // Boost system
+    private float currentBooster;
+    private bool isBoosting = false;
+    private float timeSinceBoostEnd = 0f;
 
     void Awake()
     {
@@ -49,28 +60,35 @@ public class AircraftRocketController : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         currentSpeed = cruiseSpeed;
+        currentBooster = maxBooster; // Začínáme s plným boosterem
     }
 
     void Update()
     {
-         if (!inputEnabled)
+        if (!inputEnabled)
         {
             pitchInput = rollInput = yawInput = 0f;
+            isBoosting = false;
             return;
         }
-
-
 
         var kb = Keyboard.current;
         if (kb == null)
         {
             pitchInput = rollInput = yawInput = 0f;
+            isBoosting = false;
             return;
         }
 
-        // Šipky = klasický “flight stick”
+        // DEBUG boosteru
+        if (kb.spaceKey.isPressed)
+        {
+            Debug.Log($"Space pressed! Booster: {currentBooster}, isBoosting: {isBoosting}");
+        }
+
+        // Šipky = klasický "flight stick"
         pitchInput = (kb.downArrowKey.isPressed ? 1f : 0f) + (kb.upArrowKey.isPressed ? -1f : 0f);
-        rollInput  = (kb.rightArrowKey.isPressed ? 1f : 0f) + (kb.leftArrowKey.isPressed ? -1f : 0f);
+        rollInput = (kb.rightArrowKey.isPressed ? 1f : 0f) + (kb.leftArrowKey.isPressed ? -1f : 0f);
 
         // Volitelné yaw (směrovka)
         yawInput = 0f;
@@ -78,12 +96,37 @@ public class AircraftRocketController : MonoBehaviour
         if (kb.dKey.isPressed || kb.eKey.isPressed) yawInput += 1f;
 
         pitchInput = Mathf.Clamp(pitchInput, -1f, 1f);
-        rollInput  = Mathf.Clamp(rollInput,  -1f, 1f);
-        yawInput   = Mathf.Clamp(yawInput,   -1f, 1f);
+        rollInput = Mathf.Clamp(rollInput, -1f, 1f);
+        yawInput = Mathf.Clamp(yawInput, -1f, 1f);
+
+        // Boost handling
+        if (kb.spaceKey.isPressed && currentBooster > 0)
+        {
+            isBoosting = true;
+            currentBooster -= boosterDrainRate * Time.deltaTime;
+            currentBooster = Mathf.Max(0, currentBooster);
+            timeSinceBoostEnd = 0f;
+        }
+        else
+        {
+            if (isBoosting)
+            {
+                timeSinceBoostEnd = 0f;
+            }
+            isBoosting = false;
+
+            // Dobíjení s delay
+            timeSinceBoostEnd += Time.deltaTime;
+            if (timeSinceBoostEnd >= boosterRechargeDelay && currentBooster < maxBooster)
+            {
+                currentBooster += boosterRechargeRate * Time.deltaTime;
+                currentBooster = Mathf.Min(maxBooster, currentBooster);
+            }
+        }
     }
 
     void FixedUpdate()
-        {
+    {
         if (!movementEnabled)
         {
             rb.linearVelocity = Vector3.zero;
@@ -91,17 +134,17 @@ public class AircraftRocketController : MonoBehaviour
             return;
         }
 
-
         float dt = Time.fixedDeltaTime;
 
-        // 1) Drž rychlost dopředu (throttle)
-        currentSpeed = Mathf.Lerp(currentSpeed, cruiseSpeed, 1f - Mathf.Exp(-throttleResponse * dt));
+        // 1) Drž rychlost dopředu (throttle) - s boostem
+        float targetSpeed = isBoosting ? cruiseSpeed * boostMultiplier : cruiseSpeed;
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, 1f - Mathf.Exp(-throttleResponse * dt));
         rb.linearVelocity = transform.forward * currentSpeed;
 
         // 2) Cílová úhlová rychlost v lokálním prostoru (rad/s)
         float pitchRad = pitchRate * Mathf.Deg2Rad;
-        float rollRad  = rollRate  * Mathf.Deg2Rad;
-        float yawRad   = yawRate   * Mathf.Deg2Rad;
+        float rollRad = rollRate * Mathf.Deg2Rad;
+        float yawRad = yawRate * Mathf.Deg2Rad;
 
         // Unity osy: x=right, y=up, z=forward
         // Pitch = rotace kolem X, Yaw kolem Y, Roll kolem Z
@@ -130,5 +173,23 @@ public class AircraftRocketController : MonoBehaviour
         // 4) Plynule nastav úhlovou rychlost (world space)
         Vector3 targetAngVelWorld = transform.TransformDirection(targetAngVelLocal);
         rb.angularVelocity = Vector3.Lerp(rb.angularVelocity, targetAngVelWorld, 1f - Mathf.Exp(-angularResponse * dt));
+    }
+
+    // Pro UI - získání aktuální hodnoty boosteru v procentech
+    public float GetBoosterPercentage()
+    {
+        return (currentBooster / maxBooster) * 100f;
+    }
+
+    // Pro UI - získání surové hodnoty boosteru
+    public float GetCurrentBooster()
+    {
+        return currentBooster;
+    }
+
+    // Pro kontrolu zda se boostuje
+    public bool IsBoosting()
+    {
+        return isBoosting;
     }
 }

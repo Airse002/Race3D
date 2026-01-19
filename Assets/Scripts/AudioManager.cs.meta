@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 515263db9561aa44183c1d91c48083f1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - musicSource: {instanceID: 0}
+  - sfxSource: {instanceID: 0}
+  - menuMusic: {fileID: 8300000, guid: f560cce2ec7bce1408641f02518286ce, type: 3}
+  - ringPassSound: {instanceID: 0}
+  - victoryMusic: {fileID: 8300000, guid: bde346e8c4c80ac4da2090cd111f841a, type: 3}
+  - defeatMusic: {fileID: 8300000, guid: 8bc6b0bea3c99674fa67cac4589ab818, type: 3}
+  - buttonClickSound: {instanceID: 0}
+  - countdownBeep: {instanceID: 0}
+  - countdownGo: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
