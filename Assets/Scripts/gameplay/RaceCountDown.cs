@@ -31,25 +31,59 @@ public class RaceCountdown : MonoBehaviour
         // LOCK
         LockPlayer(playerInstance, true);
 
+        // === 3 ===
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(true);
             countdownText.text = "3";
         }
+
+        // Audio: pípnutí
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayCountdownBeep();
+
         yield return new WaitForSeconds(stepSeconds);
 
-        if (countdownText != null) countdownText.text = "2";
+        // === 2 ===
+        if (countdownText != null)
+            countdownText.text = "2";
+
+        // Audio: pípnutí
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayCountdownBeep();
+
         yield return new WaitForSeconds(stepSeconds);
 
-        if (countdownText != null) countdownText.text = "1";
+        // === 1 ===
+        if (countdownText != null)
+            countdownText.text = "1";
+
+        // Audio: pípnutí
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayCountdownBeep();
+
         yield return new WaitForSeconds(stepSeconds);
 
-        if (countdownText != null) countdownText.text = "GO!";
+        // === GO! ===
+        if (countdownText != null)
+            countdownText.text = "GO!";
+
+        // Audio: "GO!" zvuk
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayCountdownGo();
 
         // START závodu až na GO
         if (ScoreManager.Instance != null && trackGenerator != null)
         {
-            ScoreManager.Instance.StartRace(trackGenerator.gateCount, trackGenerator.timeLimitSeconds);
+
+            var config = LevelsCatalog.GetConfig(GameSession.SelectedLevelIndex);
+
+
+            ScoreManager.Instance.StartRace(
+                config.gateCount,
+                config.timeLimitSeconds,
+                config.requiredPercentage  // Předej procento k vítězství
+            );
         }
 
         // UNLOCK

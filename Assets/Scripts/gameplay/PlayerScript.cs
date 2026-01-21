@@ -80,11 +80,6 @@ public class AircraftRocketController : MonoBehaviour
             return;
         }
 
-        // DEBUG boosteru
-        if (kb.spaceKey.isPressed)
-        {
-            Debug.Log($"Space pressed! Booster: {currentBooster}, isBoosting: {isBoosting}");
-        }
 
         // Šipky = klasický "flight stick"
         pitchInput = (kb.downArrowKey.isPressed ? 1f : 0f) + (kb.upArrowKey.isPressed ? -1f : 0f);

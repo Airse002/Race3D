@@ -15,6 +15,16 @@ public class PlaySceneBootstrap : MonoBehaviour
         int idx = GameSession.SelectedLevelIndex;
         var config = LevelsCatalog.GetConfig(idx);
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayLevelMusic(idx);
+            Debug.Log($"[PlaySceneBootstrap] Playing music for level {idx}");
+        }
+        else
+        {
+            Debug.LogWarning("[PlaySceneBootstrap] AudioManager not found!");
+        }
+
         trackGenerator.GenerateTrack(config);
     }
 }

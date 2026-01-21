@@ -139,7 +139,7 @@ public class ScoreManager : MonoBehaviour
             AudioManager.Instance.PlayRingPass();
 
         // Zkontroluj vítězství
-        if (checkpointsPassed >= requiredCheckpoints)
+        if (checkpointsPassed >= totalCheckpoints)
             FinishRace();
     }
 

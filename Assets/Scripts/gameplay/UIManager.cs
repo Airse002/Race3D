@@ -22,6 +22,10 @@ public class UIManager : MonoBehaviour
     public TMP_Text titleText;
     public TMP_Text timeText;
     public TMP_Text checkpointsText;
+    public TMP_Text requiredText;       
+    public TMP_Text percentageText;     
+    public TMP_Text bestScoreText;      
+    public TMP_Text newRecordText;      
 
     [Header("Results Buttons")]
     public Button retryButton;
@@ -200,7 +204,14 @@ public class UIManager : MonoBehaviour
 
         int passed = ScoreManager.Instance != null ? ScoreManager.Instance.GetPassed() : 0;
         int total = ScoreManager.Instance != null ? ScoreManager.Instance.GetTotal() : 0;
+        int required = ScoreManager.Instance != null ? ScoreManager.Instance.GetRequired() : 0;
         float elapsed = ScoreManager.Instance != null ? ScoreManager.Instance.GetElapsed() : 0f;
+        float percentage = total > 0 ? (passed / (float)total) * 100f : 0f;
+
+        // Získej best score
+        int levelIndex = GameSession.SelectedLevelIndex;
+        int oldBestScore = ScoreManager.Instance != null ? ScoreManager.Instance.GetBestScore(levelIndex) : 0;
+        bool isNewRecord = passed > oldBestScore;
 
         if (titleText != null)
             titleText.text = (state == ScoreManager.RaceState.Finished) ? "FINISH!" : "FAILED";
@@ -211,10 +222,44 @@ public class UIManager : MonoBehaviour
         if (checkpointsText != null)
             checkpointsText.text = $"CHECKPOINTS  {passed} / {total}";
 
+        // NOVÉ: Required text
+        if (requiredText != null)
+        {
+            string checkmark = state == ScoreManager.RaceState.Finished ? "✓" : "✗";
+            string color = state == ScoreManager.RaceState.Finished ? "#00FF00" : "#FF0000";
+            requiredText.text = $"<color={color}>{checkmark}</color> Požadováno: {required} ({(required / (float)total * 100f):F0}%)";
+        }
+
+        // NOVÉ: Percentage text
+        if (percentageText != null)
+        {
+            percentageText.text = $"Úspěšnost: {percentage:F1}%";
+        }
+
+        // NOVÉ: Best score text
+        if (bestScoreText != null)
+        {
+            int displayBestScore = Mathf.Max(oldBestScore, passed);
+            bestScoreText.text = $"Nejlepší: {displayBestScore}/{total}";
+        }
+
+        // NOVÉ: New record text
+        if (newRecordText != null)
+        {
+            if (isNewRecord && state == ScoreManager.RaceState.Finished)
+            {
+                newRecordText.text = "★ NOVÝ REKORD! ★";
+                newRecordText.gameObject.SetActive(true);
+            }
+            else
+            {
+                newRecordText.gameObject.SetActive(false);
+            }
+        }
+
         if (nextButton != null)
             nextButton.gameObject.SetActive(state == ScoreManager.RaceState.Finished);
 
-        // při výsledcích vypnout input
         SetPlayerInput(false);
     }
 

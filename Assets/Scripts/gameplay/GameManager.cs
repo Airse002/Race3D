@@ -33,9 +33,9 @@ public class LevelMenuManager : MonoBehaviour
         levelConfigs = new TrackConfig[]
         {
             // Level 1 - Easy Tutorial
-            new TrackConfig(TrackGenerator.TrackType.Linear, 10, 60f)
+            new TrackConfig(TrackGenerator.TrackType.Linear, 5, 60f)
             {
-                timeLimitSeconds = 150f,
+                timeLimitSeconds = 90f,
                 startOffset = -40f,
                 rotateGates = false,
                 oscillateGates = false,

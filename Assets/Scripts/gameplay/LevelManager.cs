@@ -233,6 +233,7 @@ public class TrackGenerator : MonoBehaviour
 
         if (countdown != null && playerInstance != null)
         {
+
             countdown.trackGenerator = this;
             countdown.Begin(playerInstance);
         }

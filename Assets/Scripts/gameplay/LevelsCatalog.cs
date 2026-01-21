@@ -43,37 +43,37 @@ public static class LevelsCatalog
         {
             // Level 1 - Tutorial (musíš proletět všechny obruče)
             new LevelDef("Tutorial",
-                new TrackConfig(TrackGenerator.TrackType.Linear, 10, 60f)
+                new TrackConfig(TrackGenerator.TrackType.Linear, 5, 60f)
                 {
-                    requiredPercentage = 1.0f,  // 100% - musíš proletět všech 10
+                    requiredPercentage = 0.2f,  // stačí proletět jednu
                     startOffset = -40f,
                     rotateGates = true,
                     oscillateGates = false,
                     backgroundColor = new Color(0.2f, 0.3f, 0.5f),
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 60f
                 }
             ),
 
-            // Level 2 - Gentle Sine (stačí 90%)
+            // Level 2 - Gentle Sine
             new LevelDef("Gentle Sine",
-                new TrackConfig(TrackGenerator.TrackType.Sine, 15, 50f)
+                new TrackConfig(TrackGenerator.TrackType.Sine, 8, 50f)
                 {
-                    requiredPercentage = 0.9f,  // 90% - stačí 14 z 15
+                    requiredPercentage = 0.5f,  // 50%
                     sineAmplitude = 8f,
                     sineFrequency = 0.08f,
                     sineHorizontalOffset = 5f,
                     rotateGates = true,
                     oscillateGates = false,
                     backgroundColor = new Color(0.1f, 0.2f, 0.4f),
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 120f
                 }
             ),
 
-            // Level 3 - Zigzag (stačí 85%)
+            // Level 3 - Zigzag
             new LevelDef("Zigzag",
-                new TrackConfig(TrackGenerator.TrackType.Zigzag, 20, 45f)
+                new TrackConfig(TrackGenerator.TrackType.Zigzag, 10, 45f)
                 {
-                    requiredPercentage = 0.85f,  // 85% - stačí 17 z 20
+                    requiredPercentage = 0.7f,  // 70%
                     zigzagAmplitude = 12f,
                     rotateGates = true,
                     oscillateGates = true,
@@ -87,11 +87,11 @@ public static class LevelsCatalog
                 }
             ),
 
-            // Level 4 - Helix Spiral (stačí 80%)
+            // Level 4 - Helix Spiral
             new LevelDef("Helix Spiral",
-                new TrackConfig(TrackGenerator.TrackType.Helix, 25, 40f)
+                new TrackConfig(TrackGenerator.TrackType.Helix, 15, 40f)
                 {
-                    requiredPercentage = 0.8f,  // 80% - stačí 20 z 25
+                    requiredPercentage = 0.8f,  // 80%
                     helixRadius = 12f,
                     helixPitch = 8f,
                     rotateGates = true,
@@ -106,11 +106,11 @@ public static class LevelsCatalog
                 }
             ),
 
-            // Level 5 - Lissajous (stačí 75%)
+            // Level 5 - Lissajous
             new LevelDef("Lissajous",
-                new TrackConfig(TrackGenerator.TrackType.Lissajous, 30, 35f)
+                new TrackConfig(TrackGenerator.TrackType.Lissajous, 18, 35f)
                 {
-                    requiredPercentage = 0.75f,  // 75% - stačí 23 z 30
+                    requiredPercentage = 0.50f,  // 50%
                     lissajousA = 3f,
                     lissajousB = 2f,
                     lissajousAmplitudeX = 12f,
@@ -126,15 +126,15 @@ public static class LevelsCatalog
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.3f,
                     backgroundColor = new Color(0.05f, 0.05f, 0.2f),
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 240f
                 }
             ),
 
-            // Level 6 - Extreme Chaos (stačí 70%)
+            // Level 6 - Extreme Chaos
             new LevelDef("Extreme Chaos",
-                new TrackConfig(TrackGenerator.TrackType.Random, 40, 30f)
+                new TrackConfig(TrackGenerator.TrackType.Random, 25, 30f)
                 {
-                    requiredPercentage = 0.7f,  // 70% - stačí 28 z 40
+                    requiredPercentage = 0.8f,  // 80%
                     rotateGates = true,
                     oscillateGates = true,
                     oscillationType = TrackGenerator.OscillationType.Circular,
@@ -145,7 +145,7 @@ public static class LevelsCatalog
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.5f,
                     backgroundColor = Color.black,
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 300f
                 }
             ),
         };

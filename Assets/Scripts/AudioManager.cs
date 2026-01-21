@@ -191,6 +191,7 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     public void PlayCountdownBeep()
     {
+        Debug.Log("[AudioManager] PlayCountdownBeep called");
         PlaySFX(countdownBeep);
     }
 
@@ -199,6 +200,7 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     public void PlayCountdownGo()
     {
+        Debug.Log("[AudioManager] PlayCountdownGo called");
         PlaySFX(countdownGo);
     }
 
@@ -207,11 +209,22 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     private void PlaySFX(AudioClip clip, float volumeMultiplier = 1f)
     {
-        if (clip == null) return;
+        if (clip == null)
+        {
+            Debug.LogWarning("[AudioManager] Attempted to play null AudioClip!");
+            return;
+        }
 
         if (!isInitialized)
             InitializeAudioSources();
 
+        if (sfxSource == null)
+        {
+            Debug.LogError("[AudioManager] SFX AudioSource is null!");
+            return;
+        }
+
+        Debug.Log($"[AudioManager] Playing SFX: {clip.name} at volume {sfxVolume * volumeMultiplier}");
         sfxSource.PlayOneShot(clip, sfxVolume * volumeMultiplier);
     }
 

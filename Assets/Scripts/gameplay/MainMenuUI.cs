@@ -12,6 +12,8 @@ public class MainMenuUI : MonoBehaviour
 
     void Start()
     {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayMenuMusic();
         BuildLevelButtons();
     }
 
@@ -32,6 +34,8 @@ public class MainMenuUI : MonoBehaviour
 
             btn.onClick.AddListener(() =>
             {
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayButtonClick();
                 GameSession.SelectedLevelIndex = idx;
                 SceneManager.LoadScene(playSceneName);
             });
