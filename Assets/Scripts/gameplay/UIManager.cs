@@ -22,10 +22,10 @@ public class UIManager : MonoBehaviour
     public TMP_Text titleText;
     public TMP_Text timeText;
     public TMP_Text checkpointsText;
-    public TMP_Text requiredText;       
-    public TMP_Text percentageText;     
-    public TMP_Text bestScoreText;      
-    public TMP_Text newRecordText;      
+    public TMP_Text requiredText;       // NOVÉ: požadovaný počet obručí
+    public TMP_Text percentageText;     // NOVÉ: dosažené procento
+    public TMP_Text bestScoreText;      // NOVÉ: nejlepší skóre
+    public TMP_Text newRecordText;      // NOVÉ: oznámení o novém rekordu
 
     [Header("Results Buttons")]
     public Button retryButton;
@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour
     public Button resumeButton;
     public Button pauseRetryButton;
     public Button pauseMenuButton;
+    public Button pauseQuitButton;      // NOVÉ: ukončení hry z pauzy
 
     [Header("Scenes")]
     public string menuSceneName = "Menu";
@@ -63,6 +64,7 @@ public class UIManager : MonoBehaviour
         if (resumeButton != null) resumeButton.onClick.AddListener(Resume);
         if (pauseRetryButton != null) pauseRetryButton.onClick.AddListener(Retry);
         if (pauseMenuButton != null) pauseMenuButton.onClick.AddListener(GoMenu);
+        if (pauseQuitButton != null) pauseQuitButton.onClick.AddListener(QuitGame);
 
         // Najít player controller
         FindPlayerController();
@@ -260,6 +262,7 @@ public class UIManager : MonoBehaviour
         if (nextButton != null)
             nextButton.gameObject.SetActive(state == ScoreManager.RaceState.Finished);
 
+        // při výsledcích vypnout input
         SetPlayerInput(false);
     }
 
@@ -289,6 +292,18 @@ public class UIManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(menuSceneName);
+    }
+
+    void QuitGame()
+    {
+        Debug.Log("[UIManager] Ukončuji hru...");
+        Time.timeScale = 1f;
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
     }
 
     string FormatTime(float t)
