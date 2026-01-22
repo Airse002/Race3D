@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 87778623823202220}
   - component: {fileID: 4692606580136755225}
   - component: {fileID: 4032820216751231511}
+  - component: {fileID: 2228861761809541758}
+  - component: {fileID: 5375088435063827454}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -76,6 +78,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RocketAutoFly
   cruiseSpeed: 10
   throttleResponse: 3
+  boostMultiplier: 2
+  maxBooster: 100
+  boosterDrainRate: 25
+  boosterRechargeRate: 15
+  boosterRechargeDelay: 0.5
   pitchRate: 85
   rollRate: 200
   yawRate: 45
@@ -110,6 +117,48 @@ CapsuleCollider:
   m_Height: 1.3501022
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2228861761809541758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5492916345635209777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c61336bf7e59be141898f99e4e680cd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoostMotionBlurSimple
+  maxBlurIntensity: 0.6
+  blurTransitionSpeed: 5
+  enableVignette: 1
+  vignetteIntensity: 0.4
+  enableChromaticAberration: 1
+  chromaticIntensity: 0.3
+--- !u!114 &5375088435063827454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5492916345635209777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b080ddf4f7736943bb1c2eba2cc6808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  musicGroup: {fileID: -6348325187727209427, guid: df328d973e3526a499bd3833d4dffaa5, type: 2}
+  sfxGroup: {fileID: 5029526682756469271, guid: df328d973e3526a499bd3833d4dffaa5, type: 2}
+  audioMixer: {fileID: 24100000, guid: df328d973e3526a499bd3833d4dffaa5, type: 2}
+  musicDuckingAmount: -10
+  sfxDuckingAmount: -5
+  duckingSpeed: 8
+  enableDistortion: 1
+  distortionAmount: 0.3
+  distortionSpeed: 5
+  boostSound: {fileID: 8300000, guid: 95d9cc772eff6e74d882b40b27b7c68e, type: 3}
+  loopBoostSound: 1
+  boostSoundVolume: 0.7
 --- !u!1001 &7151553821552344125
 PrefabInstance:
   m_ObjectHideFlags: 0

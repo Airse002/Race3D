@@ -34,25 +34,12 @@ public class BoostMotionBlurSimple : MonoBehaviour
     [Tooltip("Intenzita barevného rozostření")]
     public float chromaticIntensity = 0.3f;
 
-    [Header("Camera Shake")]
-    [Tooltip("Zapnout třesení kamery při boostu?")]
-    public bool enableCameraShake = true;
-
-    [Range(0f, 1f)]
-    public float shakeIntensity = 0.15f;
-
-    [Range(10f, 50f)]
-    public float shakeFrequency = 25f;
-
     // Private
     private AircraftRocketController controller;
     private Volume volume;
     private MotionBlur motionBlur;
     private Vignette vignette;
     private ChromaticAberration chromaticAberration;
-
-    private Camera mainCamera;
-    private Vector3 originalCameraLocalPosition;
 
     private float currentBlurIntensity = 0f;
     private float currentVignetteIntensity = 0f;
@@ -111,16 +98,6 @@ public class BoostMotionBlurSimple : MonoBehaviour
             Debug.Log("[BoostMotionBlur] Chromatic Aberration připojen!");
         }
 
-        // Camera shake setup
-        if (enableCameraShake)
-        {
-            mainCamera = Camera.main;
-            if (mainCamera != null)
-            {
-                originalCameraLocalPosition = mainCamera.transform.localPosition;
-            }
-        }
-
         Debug.Log("[BoostMotionBlur] Inicializace dokončena!");
     }
 
@@ -157,33 +134,6 @@ public class BoostMotionBlurSimple : MonoBehaviour
         {
             chromaticAberration.intensity.value = currentChromaticIntensity;
         }
-
-        // Camera shake
-        if (enableCameraShake && mainCamera != null)
-        {
-            if (isBoosting)
-            {
-                ApplyCameraShake();
-            }
-            else
-            {
-                mainCamera.transform.localPosition = originalCameraLocalPosition;
-            }
-        }
-    }
-
-    void ApplyCameraShake()
-    {
-        if (mainCamera == null) return;
-
-        // Perlin noise pro smooth shake
-        float time = Time.time * shakeFrequency;
-        float offsetX = (Mathf.PerlinNoise(time, 0f) - 0.5f) * 2f * shakeIntensity;
-        float offsetY = (Mathf.PerlinNoise(0f, time) - 0.5f) * 2f * shakeIntensity;
-        float offsetZ = (Mathf.PerlinNoise(time, time) - 0.5f) * 2f * shakeIntensity * 0.5f;
-
-        Vector3 shakeOffset = new Vector3(offsetX, offsetY, offsetZ);
-        mainCamera.transform.localPosition = originalCameraLocalPosition + shakeOffset;
     }
 
     void OnDisable()
@@ -197,8 +147,5 @@ public class BoostMotionBlurSimple : MonoBehaviour
 
         if (chromaticAberration != null)
             chromaticAberration.intensity.value = 0f;
-
-        if (mainCamera != null)
-            mainCamera.transform.localPosition = originalCameraLocalPosition;
     }
 }

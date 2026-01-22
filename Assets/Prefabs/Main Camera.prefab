@@ -156,3 +156,9 @@ MonoBehaviour:
   rotationLerp: 10
   lookAhead: 10
   rollFollow: 0.6
+  boostShakeIntensity: 0.08
+  boostShakeFrequency: 25
+  boostFOVIncrease: 10
+  fovChangeSpeed: 8
+  zoomOutOnBoost: 1
+  boostDistanceIncrease: 2

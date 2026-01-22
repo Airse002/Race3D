@@ -233,7 +233,6 @@ public class TrackGenerator : MonoBehaviour
 
         if (countdown != null && playerInstance != null)
         {
-
             countdown.trackGenerator = this;
             countdown.Begin(playerInstance);
         }
@@ -390,6 +389,14 @@ public class TrackGenerator : MonoBehaviour
         playerInstance = Instantiate(playerPrefab, playerPos, Quaternion.identity);
         playerInstance.name = "Player";
         playerInstance.tag = "Player"; // hodně důležité pro CheckpointDetector
+
+        // Přidej boost motion blur efekt
+        var boostBlur = playerInstance.GetComponent<BoostMotionBlurSimple>();
+        if (boostBlur == null)
+        {
+            boostBlur = playerInstance.AddComponent<BoostMotionBlurSimple>();
+            Debug.Log("[TrackGenerator] BoostMotionBlurSimple přidán na Player");
+        }
     }
 
     void SpawnCamera()
@@ -421,12 +428,29 @@ public class TrackGenerator : MonoBehaviour
     {
         if (!applyBackgroundColor) return;
 
-        Camera cam = Camera.main;
-        if (cam == null && cameraInstance != null)
-            cam = cameraInstance.GetComponent<Camera>();
+        // Zkus najít LevelSkyboxController
+        var skyboxController = FindFirstObjectByType<LevelSkyboxController>();
 
-        if (cam != null)
-            cam.backgroundColor = backgroundColor;
+        if (skyboxController != null)
+        {
+            // Použij skybox controller pro gradient pozadí
+            skyboxController.SetColors(backgroundColor);
+            Debug.Log($"[TrackGenerator] Skybox nastaven na barvu: {backgroundColor}");
+        }
+        else
+        {
+            // Fallback: použij solid color na kameře
+            Camera cam = Camera.main;
+            if (cam == null && cameraInstance != null)
+                cam = cameraInstance.GetComponent<Camera>();
+
+            if (cam != null)
+            {
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = backgroundColor;
+                Debug.Log($"[TrackGenerator] Camera background nastaven na: {backgroundColor}");
+            }
+        }
     }
 
     // === CONFIG ===

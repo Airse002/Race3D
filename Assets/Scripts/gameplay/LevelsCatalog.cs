@@ -49,7 +49,7 @@ public static class LevelsCatalog
                     startOffset = -40f,
                     rotateGates = true,
                     oscillateGates = false,
-                    backgroundColor = new Color(0.2f, 0.3f, 0.5f),
+                    backgroundColor = new Color(0.3f, 0.5f, 0.8f),
                     timeLimitSeconds = 60f
                 }
             ),
@@ -64,7 +64,7 @@ public static class LevelsCatalog
                     sineHorizontalOffset = 5f,
                     rotateGates = true,
                     oscillateGates = false,
-                    backgroundColor = new Color(0.1f, 0.2f, 0.4f),
+                    backgroundColor = new Color(0.8f, 0.4f, 0.2f),
                     timeLimitSeconds = 120f
                 }
             ),
@@ -82,7 +82,7 @@ public static class LevelsCatalog
                     oscillationSpeed = 1f,
                     varyOscillationPhase = true,
                     phaseOffsetPerGate = 0.5f,
-                    backgroundColor = new Color(0.15f, 0.15f, 0.3f),
+                    backgroundColor = new Color(0.6f, 0.2f, 0.6f),
                     timeLimitSeconds = 180f
                 }
             ),
@@ -101,7 +101,7 @@ public static class LevelsCatalog
                     oscillationSpeed = 1.2f,
                     varyOscillationPhase = true,
                     phaseOffsetPerGate = 0.3f,
-                    backgroundColor = new Color(0.1f, 0.1f, 0.25f),
+                    backgroundColor = new Color(0.2f, 0.6f, 0.4f),
                     timeLimitSeconds = 180f
                 }
             ),
@@ -125,7 +125,7 @@ public static class LevelsCatalog
                     phaseOffsetPerGate = 0.4f,
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.3f,
-                    backgroundColor = new Color(0.05f, 0.05f, 0.2f),
+                    backgroundColor = new Color(0.8f, 0.2f, 0.3f),
                     timeLimitSeconds = 240f
                 }
             ),
@@ -144,7 +144,7 @@ public static class LevelsCatalog
                     phaseOffsetPerGate = 0.2f,
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.5f,
-                    backgroundColor = Color.black,
+                    backgroundColor = new Color(0.1f, 0.1f, 0.3f),
                     timeLimitSeconds = 300f
                 }
             ),
