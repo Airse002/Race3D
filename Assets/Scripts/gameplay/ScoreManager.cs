@@ -87,12 +87,9 @@ public class ScoreManager : MonoBehaviour
     // === PUBLIC API ===
 
     /// <summary>
-    /// Zahájí závod s procentuálním požadavkem na průlet obručí
+    /// Inicializuje závod s parametry, ale NESPOUŠTÍ timer (čeká na countdown)
     /// </summary>
-    /// <param name="total">Celkový počet obručí v levelu</param>
-    /// <param name="limitSeconds">Časový limit</param>
-    /// <param name="requiredPercent">Procento obručí potřebné k vítězství (0.0 - 1.0)</param>
-    public void StartRace(int total, float limitSeconds, float requiredPercent = 1.0f)
+    public void InitializeRace(int total, float limitSeconds, float requiredPercent = 1.0f)
     {
         totalCheckpoints = Mathf.Max(0, total);
         timeLimit = Mathf.Max(1f, limitSeconds);
@@ -104,12 +101,37 @@ public class ScoreManager : MonoBehaviour
         elapsedTime = 0f;
         timeRemaining = timeLimit;
 
-        SetState(RaceState.Running);
+        SetState(RaceState.Idle);  // IDLE - čeká na countdown
 
         OnCheckpointChanged?.Invoke(checkpointsPassed, requiredCheckpoints);
         OnTimeChanged?.Invoke(timeRemaining, timeLimit);
 
-        Debug.Log($"[ScoreManager] Race started. Total={totalCheckpoints}, Required={requiredCheckpoints} ({requiredPercentage * 100:F0}%), Limit={timeLimit:0.##}s");
+        Debug.Log($"[ScoreManager] Race initialized. Total={totalCheckpoints}, Required={requiredCheckpoints} ({requiredPercentage * 100:F0}%), Limit={timeLimit:0.##}s");
+    }
+
+    /// <summary>
+    /// Spustí závod (timer začne běžet) - volá se po countdown
+    /// </summary>
+    public void BeginRace()
+    {
+        if (state != RaceState.Idle)
+        {
+            Debug.LogWarning("[ScoreManager] BeginRace() voláno, ale state není Idle!");
+            return;
+        }
+
+        SetState(RaceState.Running);
+        Debug.Log("[ScoreManager] Race STARTED - timer běží!");
+    }
+
+    /// <summary>
+    /// Zahájí závod s procentuálním požadavkem (legacy - pro zpětnou kompatibilitu)
+    /// </summary>
+    [System.Obsolete("Použij InitializeRace() + BeginRace() pro countdown support")]
+    public void StartRace(int total, float limitSeconds, float requiredPercent = 1.0f)
+    {
+        InitializeRace(total, limitSeconds, requiredPercent);
+        BeginRace();
     }
 
     /// <summary>
@@ -138,7 +160,7 @@ public class ScoreManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayRingPass();
 
-        // Zkontroluj vítězství
+        // Zkontroluj vítězství - končí až po proletění VŠECH obručí
         if (checkpointsPassed >= totalCheckpoints)
             FinishRace();
     }

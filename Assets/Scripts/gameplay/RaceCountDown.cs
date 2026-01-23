@@ -72,18 +72,11 @@ public class RaceCountdown : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayCountdownGo();
 
-        // START závodu až na GO
-        if (ScoreManager.Instance != null && trackGenerator != null)
+        // START timeru (race už je inicializován v TrackGenerator)
+        if (ScoreManager.Instance != null)
         {
-
-            var config = LevelsCatalog.GetConfig(GameSession.SelectedLevelIndex);
-
-
-            ScoreManager.Instance.StartRace(
-                config.gateCount,
-                config.timeLimitSeconds,
-                config.requiredPercentage  // Předej procento k vítězství
-            );
+            ScoreManager.Instance.BeginRace();
+            Debug.Log("[RaceCountdown] Závod SPUŠTĚN - timer běží!");
         }
 
         // UNLOCK

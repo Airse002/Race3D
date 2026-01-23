@@ -222,9 +222,19 @@ public class TrackGenerator : MonoBehaviour
         SpawnCamera();
         ApplyCameraBackground();
 
-        // Start závodu:
-        // - když máš countdown, start je až na GO
-        // - když nemáš countdown, startni hned
+        // Inicializuj závod s parametry (timer ještě NEBĚŽÍ)
+        var config = LevelsCatalog.GetConfig(GameSession.SelectedLevelIndex);
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.InitializeRace(
+                gateCount,
+                config.timeLimitSeconds,
+                config.requiredPercentage
+            );
+            Debug.Log("[TrackGenerator] Race inicializován, čeká na countdown...");
+        }
+
+        // Start countdownu (countdown zavolá BeginRace() na konci)
         if (countdown == null)
         {
             // auto-find (když jsi zapomněl přiřadit)
@@ -239,9 +249,8 @@ public class TrackGenerator : MonoBehaviour
         else
         {
             // bez countdownu -> start hned
-            // ZMĚNA: předej i requiredPercentage z konfigurace
-            var config = LevelsCatalog.GetConfig(GameSession.SelectedLevelIndex);
-            ScoreManager.Instance?.StartRace(gateCount, timeLimitSeconds, config.requiredPercentage);
+            Debug.LogWarning("[TrackGenerator] Countdown nenalezen - startuji závod okamžitě");
+            ScoreManager.Instance?.BeginRace();
         }
     }
 

@@ -65,7 +65,7 @@ public static class LevelsCatalog
                     rotateGates = true,
                     oscillateGates = false,
                     backgroundColor = new Color(0.8f, 0.4f, 0.2f),
-                    timeLimitSeconds = 120f
+                    timeLimitSeconds = 80f
                 }
             ),
 
@@ -83,7 +83,7 @@ public static class LevelsCatalog
                     varyOscillationPhase = true,
                     phaseOffsetPerGate = 0.5f,
                     backgroundColor = new Color(0.6f, 0.2f, 0.6f),
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 90f
                 }
             ),
 
@@ -102,7 +102,7 @@ public static class LevelsCatalog
                     varyOscillationPhase = true,
                     phaseOffsetPerGate = 0.3f,
                     backgroundColor = new Color(0.2f, 0.6f, 0.4f),
-                    timeLimitSeconds = 180f
+                    timeLimitSeconds = 100f
                 }
             ),
 
@@ -126,7 +126,7 @@ public static class LevelsCatalog
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.3f,
                     backgroundColor = new Color(0.8f, 0.2f, 0.3f),
-                    timeLimitSeconds = 240f
+                    timeLimitSeconds = 120f
                 }
             ),
 
@@ -145,7 +145,7 @@ public static class LevelsCatalog
                     varyOscillationSpeed = true,
                     speedVariationAmount = 0.5f,
                     backgroundColor = new Color(0.1f, 0.1f, 0.3f),
-                    timeLimitSeconds = 300f
+                    timeLimitSeconds = 150f
                 }
             ),
         };
